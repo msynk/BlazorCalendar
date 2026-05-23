@@ -5,6 +5,10 @@ namespace BlazorFullCalendar;
 public static class BlazorFullCalendarHelpers
 {
     public const int HourHeightPx = 96;
+    /// <summary>Width of a single hour column on the timeline-mode day/week views.</summary>
+    public const int TimelineHourWidthPx = 96;
+    /// <summary>Width of a single day column on the timeline-mode month view.</summary>
+    public const int TimelineDayWidthPx = 56;
     private const string FormatString = "MMM d, yyyy";
 
     // -- Culture-aware: Range text ------------------------------
@@ -219,6 +223,149 @@ public static class BlazorFullCalendarHelpers
         return use24Hour
             ? dt.ToString("HH:00", CultureInfo.InvariantCulture)
             : dt.ToString("h tt", CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Computes horizontal pixel position and width for an event placed on a resource timeline row.
+    /// The event range is clipped to the visible day so events that span past midnight stay
+    /// inside the row. Returns (LeftPx, WidthPx) or null when the event has no overlap with the day.
+    /// </summary>
+    public static (double LeftPx, double WidthPx)? GetTimelineBlockPosition(
+        BlazorFullCalendarEvent ev, DateTime day, int hourWidthPx = TimelineHourWidthPx)
+    {
+        var dayStart = day.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        var clippedStart = ev.StartDate < dayStart ? dayStart : ev.StartDate;
+        var clippedEnd = ev.EndDate > dayEnd ? dayEnd : ev.EndDate;
+        if (clippedEnd <= clippedStart)
+            return null;
+
+        var pxPerMinute = hourWidthPx / 60.0;
+        var leftMinutes = (clippedStart - dayStart).TotalMinutes;
+        var widthMinutes = (clippedEnd - clippedStart).TotalMinutes;
+
+        return (leftMinutes * pxPerMinute, widthMinutes * pxPerMinute);
+    }
+
+    /// <summary>
+    /// Groups events for a single day by their <see cref="BlazorFullCalendarEvent.Resource"/> id.
+    /// Within each resource, events are arranged into non-overlapping lanes so overlapping events
+    /// stack vertically inside the same row (similar to <see cref="GroupEvents"/> for day/week).
+    /// Events with no resource id (or an id not in <paramref name="resourceIds"/>) are placed
+    /// under <paramref name="unassignedKey"/>.
+    /// </summary>
+    public static Dictionary<string, List<List<BlazorFullCalendarEvent>>> GroupEventsByResourceForDay(
+        List<BlazorFullCalendarEvent> events,
+        DateTime day,
+        IEnumerable<string> resourceIds,
+        string unassignedKey)
+    {
+        var dayStart = day.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        var keyed = new Dictionary<string, List<BlazorFullCalendarEvent>>(StringComparer.Ordinal);
+        foreach (var id in resourceIds)
+        {
+            if (!keyed.ContainsKey(id))
+                keyed[id] = [];
+        }
+        keyed[unassignedKey] = [];
+
+        var validIds = new HashSet<string>(keyed.Keys, StringComparer.Ordinal);
+
+        foreach (var ev in events)
+        {
+            if (ev.StartDate >= dayEnd || ev.EndDate <= dayStart)
+                continue;
+
+            var key = ev.Resource is { Length: > 0 } r && validIds.Contains(r) ? r : unassignedKey;
+            keyed[key].Add(ev);
+        }
+
+        return keyed.ToDictionary(
+            kv => kv.Key,
+            kv => GroupEvents(kv.Value),
+            StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Groups events that overlap a calendar month by their <see cref="BlazorFullCalendarEvent.Resource"/>
+    /// id. Within each resource the events are arranged into non-overlapping lanes so multi-day events
+    /// stack vertically inside the resource row. Events with no resource id (or an id not in
+    /// <paramref name="resourceIds"/>) are placed under <paramref name="unassignedKey"/>.
+    /// </summary>
+    public static Dictionary<string, List<List<BlazorFullCalendarEvent>>> GroupEventsByResourceForMonth(
+        List<BlazorFullCalendarEvent> events,
+        DateTime monthStart,
+        int daysInMonth,
+        IEnumerable<string> resourceIds,
+        string unassignedKey)
+    {
+        var monthEnd = monthStart.AddDays(daysInMonth);
+
+        var keyed = new Dictionary<string, List<BlazorFullCalendarEvent>>(StringComparer.Ordinal);
+        foreach (var id in resourceIds)
+        {
+            if (!keyed.ContainsKey(id))
+                keyed[id] = [];
+        }
+        keyed[unassignedKey] = [];
+
+        var validIds = new HashSet<string>(keyed.Keys, StringComparer.Ordinal);
+
+        foreach (var ev in events)
+        {
+            if (ev.StartDate >= monthEnd || ev.EndDate <= monthStart)
+                continue;
+
+            var key = ev.Resource is { Length: > 0 } r && validIds.Contains(r) ? r : unassignedKey;
+            keyed[key].Add(ev);
+        }
+
+        return keyed.ToDictionary(
+            kv => kv.Key,
+            kv => GroupEventsByDayRange(kv.Value, monthStart, monthEnd),
+            StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Day-range variant of <see cref="GroupEvents"/>: events are sorted by start, then placed in the
+    /// first lane whose tail event ends on or before the candidate's start day. Used by the timeline
+    /// month view where the granularity is one column per day.
+    /// </summary>
+    private static List<List<BlazorFullCalendarEvent>> GroupEventsByDayRange(
+        List<BlazorFullCalendarEvent> events, DateTime rangeStart, DateTime rangeEnd)
+    {
+        var sorted = events.OrderBy(e => e.StartDate).ThenByDescending(e => e.EndDate).ToList();
+        var lanes = new List<List<BlazorFullCalendarEvent>>();
+
+        DateTime ClipStartDate(BlazorFullCalendarEvent e) => (e.StartDate < rangeStart ? rangeStart : e.StartDate).Date;
+        DateTime ClipEndDate(BlazorFullCalendarEvent e)
+        {
+            var end = e.EndDate > rangeEnd ? rangeEnd : e.EndDate;
+            // Treat 00:00 boundary as ending the previous day (exclusive end).
+            return end.TimeOfDay == TimeSpan.Zero ? end.Date.AddDays(-1) : end.Date;
+        }
+
+        foreach (var ev in sorted)
+        {
+            var s = ClipStartDate(ev);
+            var placed = false;
+            foreach (var lane in lanes)
+            {
+                if (s > ClipEndDate(lane[^1]))
+                {
+                    lane.Add(ev);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed)
+                lanes.Add([ev]);
+        }
+
+        return lanes;
     }
 
     public static List<List<BlazorFullCalendarEvent>> GroupEvents(List<BlazorFullCalendarEvent> dayEvents)

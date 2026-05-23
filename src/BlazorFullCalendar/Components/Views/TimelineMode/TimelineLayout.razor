@@ -1,0 +1,102 @@
+@namespace BlazorFullCalendar
+
+@*
+  Shared scaffolding used by every timeline view.
+
+  Layout (CSS grid):
+    - top-left   : sticky resource column header
+    - top-right  : sticky time-axis header (group headers + slot headers)
+    - bottom-left: sticky resource list
+    - bottom-right: scrollable lane grid (scrolls horizontally and vertically)
+
+  Each timeline view renders the time-axis header inside <HeaderContent /> and the lane content
+  for every resource inside <RowContent context="resource" />, while this component handles the
+  layout, sticky positioning, RTL flip, and the unassigned row.
+*@
+
+@{
+    var resources = State.Resources;
+    var hasResources = resources.Count > 0;
+    var totalContentWidth = ColumnCount * ColumnWidthPx;
+}
+
+<div class="bfc-tl-layout">
+    @if (!hasResources)
+    {
+        <div class="bfc-tl-empty">@Texts.NoResourcesMessage</div>
+    }
+    else
+    {
+        <div class="bfc-tl-scroll">
+            <div class="bfc-tl-grid" style="grid-template-columns:@(ResourceColumnWidthPx)px @(totalContentWidth)px;">
+
+                <div class="bfc-tl-corner">@Texts.ResourceColumnHeader</div>
+
+                <div class="bfc-tl-time-header" style="width:@(totalContentWidth)px;">
+                    @HeaderContent
+                </div>
+
+                @foreach (var resource in resources)
+                {
+                    var res = resource;
+                    var rowHeight = RowHeightFor(res);
+
+                    <div class="bfc-tl-resource-cell" style="height:@(rowHeight)px;">
+                        <div class="bfc-tl-resource-title">@res.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(res.Group))
+                        {
+                            <div class="bfc-tl-resource-group">@res.Group</div>
+                        }
+                    </div>
+                    <div class="bfc-tl-row" style="height:@(rowHeight)px;width:@(totalContentWidth)px;">
+                        @RowContent(res)
+                    </div>
+                }
+
+                @if (HasUnassignedRow)
+                {
+                    var unassignedHeight = UnassignedRowHeight;
+
+                    <div class="bfc-tl-resource-cell bfc-tl-resource-cell-unassigned" style="height:@(unassignedHeight)px;">
+                        <div class="bfc-tl-resource-title">@Texts.NoResourceLabel</div>
+                    </div>
+                    <div class="bfc-tl-row" style="height:@(unassignedHeight)px;width:@(totalContentWidth)px;">
+                        @UnassignedRowContent
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] public BlazorFullCalendarState State { get; set; } = default!;
+    [CascadingParameter] public BlazorFullCalendarTexts Texts { get; set; } = default!;
+
+    /// <summary>Width of a single time-axis column in pixels.</summary>
+    [Parameter] public int ColumnWidthPx { get; set; } = BlazorFullCalendarHelpers.TimelineHourWidthPx;
+
+    /// <summary>Total number of time-axis columns (e.g. 24 for day, 168 for week, days-in-month for month).</summary>
+    [Parameter] public int ColumnCount { get; set; }
+
+    /// <summary>Width of the sticky resource gutter on the left.</summary>
+    [Parameter] public int ResourceColumnWidthPx { get; set; } = 200;
+
+    /// <summary>Time-axis header(s) rendered in the top-right cell. Total width must equal <c>ColumnCount * ColumnWidthPx</c>.</summary>
+    [Parameter] public RenderFragment? HeaderContent { get; set; }
+
+    /// <summary>Row content for a single resource.</summary>
+    [Parameter] public RenderFragment<BlazorFullCalendarResource> RowContent { get; set; } = default!;
+
+    /// <summary>Whether to render the trailing "Unassigned" row.</summary>
+    [Parameter] public bool HasUnassignedRow { get; set; }
+
+    /// <summary>Content rendered inside the unassigned row.</summary>
+    [Parameter] public RenderFragment? UnassignedRowContent { get; set; }
+
+    /// <summary>Resolves the height in pixels for a given resource row (lets each view stack overlapping events into lanes).</summary>
+    [Parameter] public Func<BlazorFullCalendarResource, int> RowHeightFor { get; set; } = _ => 56;
+
+    /// <summary>Height in pixels for the unassigned row.</summary>
+    [Parameter] public int UnassignedRowHeight { get; set; } = 56;
+}

@@ -198,6 +198,8 @@
             StartDate = _startDate,
             EndDate = _endDate,
             Color = _color,
+            Resource = _isEditing ? ExistingEvent!.Resource : null,
+            Data = _isEditing ? ExistingEvent!.Data : null,
             Attendees = [.. _attendees]
         };
 

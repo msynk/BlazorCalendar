@@ -3,6 +3,9 @@
 <div class="bfc-view-tabs">
     @foreach (var view in _views)
     {
+        if (State.Mode == BlazorFullCalendarMode.Timeline && !_timelineViews.Contains(view))
+            continue;
+
         <button class="bfc-view-tab @(State.View == view ? "active" : "")"
                 @onclick="() => State.SetView(view)">
             @Texts.GetViewLabel(view)
@@ -17,6 +20,13 @@
     private static readonly BlazorFullCalendarView[] _views = [
         BlazorFullCalendarView.Day, BlazorFullCalendarView.Week, BlazorFullCalendarView.Month,
         BlazorFullCalendarView.Year, BlazorFullCalendarView.Agenda
+    ];
+
+    private static readonly HashSet<BlazorFullCalendarView> _timelineViews =
+    [
+        BlazorFullCalendarView.Day,
+        BlazorFullCalendarView.Week,
+        BlazorFullCalendarView.Month
     ];
 }
 

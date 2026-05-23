@@ -1692,3 +1692,305 @@
 /* Text alignment helpers */
 [dir="rtl"] .bfc-day-header    { direction: rtl; }
 [dir="rtl"] .bfc-happening-now { direction: rtl; }
+
+
+/* ===== Mode Tabs (Event ⇄ Timeline) ===== */
+.bfc-mode-tabs {
+    display: inline-flex;
+    background: var(--bfc-bg-secondary);
+    border-radius: var(--bfc-radius-sm);
+    padding: 2px;
+    gap: 2px;
+    margin-inline-end: 8px;
+}
+.bfc-mode-tab {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--bfc-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.bfc-mode-tab:hover { color: var(--bfc-text); background: var(--bfc-bg-hover); }
+.bfc-mode-tab.active {
+    background: var(--bfc-bg);
+    color: var(--bfc-text);
+    box-shadow: var(--bfc-shadow);
+}
+
+/* ===== Timeline Mode (resource × time grid) ===== */
+.bfc-tl-layout {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bfc-bg);
+}
+
+.bfc-tl-empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--bfc-text-muted);
+    font-size: 14px;
+}
+
+.bfc-tl-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    position: relative;
+}
+
+.bfc-tl-grid {
+    display: grid;
+    /* grid-template-columns is set inline (resource gutter + total time width) */
+    align-content: start;
+    min-height: 100%;
+}
+
+.bfc-tl-corner {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 6;
+    background: var(--bfc-bg-secondary);
+    border-bottom: 1px solid var(--bfc-border);
+    border-inline-end: 1px solid var(--bfc-border);
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bfc-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.bfc-tl-time-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bfc-bg-secondary);
+    border-bottom: 1px solid var(--bfc-border);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.bfc-tl-time-row {
+    display: flex;
+    box-sizing: border-box;
+}
+
+.bfc-tl-time-row-days {
+    border-bottom: 1px solid var(--bfc-border);
+    height: 32px;
+}
+
+.bfc-tl-time-row-slots {
+    height: 36px;
+}
+
+.bfc-tl-day-header {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-inline-end: 1px solid var(--bfc-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bfc-text);
+    background: var(--bfc-bg-secondary);
+    padding: 0 8px;
+}
+
+.bfc-tl-day-header.today {
+    color: var(--bfc-primary);
+}
+
+.bfc-tl-day-header-name {
+    font-weight: 600;
+}
+
+.bfc-tl-day-header-date {
+    color: var(--bfc-text-muted);
+    font-weight: 500;
+}
+
+.bfc-tl-time-cell {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-inline-end: 1px solid var(--bfc-border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-inline-start: 6px;
+}
+
+.bfc-tl-time-cell.today {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.bfc-tl-time-cell-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--bfc-text-muted);
+    white-space: nowrap;
+}
+
+.bfc-tl-resource-cell {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+    background: var(--bfc-bg);
+    border-bottom: 1px solid var(--bfc-border);
+    border-inline-end: 1px solid var(--bfc-border);
+    padding: 8px 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.bfc-tl-resource-cell-unassigned {
+    background: var(--bfc-bg-secondary);
+}
+
+.bfc-tl-resource-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bfc-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bfc-tl-resource-group {
+    font-size: 11px;
+    color: var(--bfc-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bfc-tl-row {
+    position: relative;
+    border-bottom: 1px solid var(--bfc-border);
+    box-sizing: border-box;
+    background: var(--bfc-bg);
+}
+
+.bfc-tl-cell {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    border-inline-end: 1px solid var(--bfc-border);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.bfc-tl-cell:hover { background: var(--bfc-bg-hover); }
+.bfc-tl-cell:hover .bfc-cell-add-hint { opacity: 1; }
+
+.bfc-tl-cell-half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    border-inline-start: 1px dashed var(--bfc-border);
+    opacity: 0.5;
+}
+
+.bfc-tl-cell-day {
+    /* Day-precision cell (timeline month view) - no half-hour split. */
+}
+
+.bfc-tl-drop-preview {
+    background: var(--bfc-resize-glow);
+}
+
+.bfc-tl-event-anchor {
+    position: absolute;
+    z-index: 3;
+}
+
+.bfc-timeline-event {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    border-radius: var(--bfc-radius-sm);
+    border: 1px solid transparent;
+    font-size: 12px;
+    cursor: grab;
+    overflow: hidden;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1.2;
+    transition: filter 0.1s, box-shadow 0.15s;
+}
+
+.bfc-timeline-event:hover {
+    filter: brightness(0.95);
+    box-shadow: var(--bfc-shadow);
+    z-index: 5;
+}
+
+.bfc-timeline-event-pass-through { pointer-events: none; opacity: 0.55; }
+
+.bfc-timeline-event-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.bfc-timeline-event-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+}
+
+.bfc-timeline-event-time {
+    font-size: 11px;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bfc-timeline-event.dot-variant {
+    background: var(--bfc-bg-secondary);
+    color: var(--bfc-text);
+    border-color: var(--bfc-border);
+}
+
+/* RTL: keep the resource gutter on the leading edge and flow time columns from the leading edge too */
+[dir="rtl"] .bfc-tl-grid { direction: rtl; }
+[dir="rtl"] .bfc-tl-time-header { direction: rtl; }
+[dir="rtl"] .bfc-tl-row { direction: rtl; }
+
+/* Responsive: shrink resource gutter on small screens */
+@media (max-width: 768px) {
+    .bfc-tl-grid { grid-template-columns: 140px auto !important; }
+    .bfc-tl-corner,
+    .bfc-tl-resource-cell { padding-inline: 8px; }
+    .bfc-tl-resource-title { font-size: 12px; }
+}

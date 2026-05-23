@@ -8,6 +8,9 @@ public class BlazorFullCalendarTexts
     public string ViewYear { get; set; } = "Year";
     public string ViewAgenda { get; set; } = "Agenda";
 
+    public string ModeEvent { get; set; } = "Events";
+    public string ModeTimeline { get; set; } = "Timeline";
+
     public string TodayButton { get; set; } = "Today";
     public string AddEventButton { get; set; } = "Add Event";
     public string AddEventHoverHint { get; set; } = "Add event";
@@ -81,6 +84,12 @@ public class BlazorFullCalendarTexts
 
     public string ResizePreviewAriaLabel { get; set; } = "New time range";
 
+    public string ResourceLabel { get; set; } = "Resource";
+    public string ResourceColumnHeader { get; set; } = "Resource";
+    public string NoResourceLabel { get; set; } = "Unassigned";
+    public string NoResourceOption { get; set; } = "(none)";
+    public string NoResourcesMessage { get; set; } = "No resources to display.";
+
     public string ColorBlue { get; set; } = "Blue";
     public string ColorGreen { get; set; } = "Green";
     public string ColorRed { get; set; } = "Red";
@@ -96,6 +105,13 @@ public class BlazorFullCalendarTexts
         BlazorFullCalendarView.Year => ViewYear,
         BlazorFullCalendarView.Agenda => ViewAgenda,
         _ => view.ToString()
+    };
+
+    public string GetModeLabel(BlazorFullCalendarMode mode) => mode switch
+    {
+        BlazorFullCalendarMode.Event => ModeEvent,
+        BlazorFullCalendarMode.Timeline => ModeTimeline,
+        _ => mode.ToString()
     };
 
     public string GetColorLabel(BlazorFullCalendarEventColor color) => color switch

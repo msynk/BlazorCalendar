@@ -27,6 +27,16 @@ public sealed class BlazorFullCalendarChangeNotifier
     /// an Edit change when the event date-time has actually changed.
     /// </summary>
     public Task HandleDropAsync(DateTime targetDate, int? hour = null, int? minute = null)
+        => HandleDropCoreAsync(targetDate, hour, minute, resourceId: null, applyResource: false);
+
+    /// <summary>
+    /// Drops the dragged event on the supplied date/time and (optionally) reassigns its resource,
+    /// emitting an Edit change when anything actually changed.
+    /// </summary>
+    public Task HandleResourceDropAsync(DateTime targetDate, int? hour, int? minute, string? resourceId)
+        => HandleDropCoreAsync(targetDate, hour, minute, resourceId, applyResource: true);
+
+    private Task HandleDropCoreAsync(DateTime targetDate, int? hour, int? minute, string? resourceId, bool applyResource)
     {
         var dragged = _state.DraggedEvent;
         if (dragged is null)
@@ -35,13 +45,15 @@ public sealed class BlazorFullCalendarChangeNotifier
         var oldSnapshot = CloneEvent(dragged);
         var eventId = dragged.Id;
 
-        _state.HandleDrop(targetDate, hour, minute);
+        _state.HandleDrop(targetDate, hour, minute, resourceId, applyResource);
 
         var after = _state.AllEvents.FirstOrDefault(e => e.Id == eventId);
         if (after is null)
             return Task.CompletedTask;
 
-        if (after.StartDate == oldSnapshot.StartDate && after.EndDate == oldSnapshot.EndDate)
+        var sameTime = after.StartDate == oldSnapshot.StartDate && after.EndDate == oldSnapshot.EndDate;
+        var sameResource = string.Equals(after.Resource ?? "", oldSnapshot.Resource ?? "", StringComparison.Ordinal);
+        if (sameTime && sameResource)
             return Task.CompletedTask;
 
         return NotifyAsync(new BlazorFullCalendarChangeEventArgs
@@ -65,6 +77,8 @@ public sealed class BlazorFullCalendarChangeNotifier
             StartDate = source.StartDate,
             EndDate = source.EndDate,
             Color = source.Color,
+            Resource = source.Resource,
+            Data = source.Data,
             Attendees = source.Attendees
                 .Select(a => new BlazorFullCalendarAttendee
                 {

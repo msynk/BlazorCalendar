@@ -4,7 +4,8 @@ A feature-rich, interactive calendar component for Blazor applications. Built wi
 
 ## Features
 
-- **5 View Modes**: Day, Week, Month, Year, and Agenda views with smooth transitions
+- **6 View Modes**: Day, Week, Month, Year, Agenda, plus a top-level **Timeline** mode (resource × time)
+- **Timeline mode**: Sits next to the default Events mode. Inside Timeline you keep day, week, and month views, but rows are resources (rooms, machines, people) and columns are time. Day/week use one-hour columns; month uses one-day columns. The grid scrolls horizontally when the time axis exceeds the visible width. Drag events between rows to reassign their resource
 - **Event Management**: Create, edit, and delete events with a polished dialog and form validation
 - **Custom Add UI (`OnAddClick`)**: Suppress the built-in add dialog and receive a draft event so you can show your own creation experience
 - **Custom Event Click (`OnEventClick`)**: Suppress the built-in event details dialog and handle event clicks yourself
@@ -125,6 +126,42 @@ If you prefer to control asset loading yourself — for example to set a specifi
                     LoadAssets="false"
                     OnChange="HandleCalendarChange"
                     @rendermode="InteractiveServer" />
+```
+
+### Resource Timeline Example (`Resources`)
+
+The Timeline **mode** is a top-level layout that sits alongside the default **Events** mode. It appears in the header automatically when `Resources` is supplied. Inside Timeline mode you keep the day, week, and month sub-views — but rows are resources and columns are time. Day and week sub-views use one-hour columns; the month sub-view uses one-day columns. The grid scrolls horizontally when the time axis exceeds the visible width. Tag each event with `Resource = "<resource-id>"` to anchor it to a row; events without a matching id land in the auto-added "Unassigned" row. Dragging an event between rows fires `OnChange` with `Source = Drag`.
+
+```razor
+<BlazorFullCalendar Events="events"
+                    Resources="rooms"
+                    InitialMode="BlazorFullCalendarMode.Timeline"
+                    OnChange="HandleChange"
+                    @rendermode="InteractiveServer" />
+
+@code {
+    private readonly List<BlazorFullCalendarResource> rooms =
+    [
+        new() { Id = "room-bay",    Title = "HQ - Bay Wing",   Group = "Headquarters" },
+        new() { Id = "room-garden", Title = "The Garden",      Group = "Headquarters" },
+        new() { Id = "room-war",    Title = "War Room (B1)",   Group = "Basement" },
+    ];
+
+    private readonly List<BlazorFullCalendarEvent> events =
+    [
+        new()
+        {
+            Id = "1",
+            Title = "Design Review",
+            StartDate = DateTime.Today.AddHours(10),
+            EndDate = DateTime.Today.AddHours(11),
+            Resource = "room-bay",
+            Color = BlazorFullCalendarEventColor.Purple
+        }
+    ];
+
+    private Task HandleChange(BlazorFullCalendarChangeEventArgs args) => Task.CompletedTask;
+}
 ```
 
 ### Custom Add UI Example (`OnAddClick`)
@@ -289,6 +326,8 @@ When `HideSettings` is `true`, the built-in settings gear button is hidden from 
 | `Texts` | `BlazorFullCalendarTexts` | `new()` | Custom UI strings for labels, placeholders, action buttons, aria labels, and validation messages |
 | `Theme` | `BlazorFullCalendarTheme` | `Default` | Visual theme — `Default` or `Fluent` (WinUI-style). Dark mode is supported for both |
 | `EventColorOptions` | `IReadOnlyList<BlazorFullCalendarColorOption>?` | `null` | Ordered list of event colors shown in pickers and filters. When `null` all colors are shown in enum order |
+| `Resources` | `IReadOnlyList<BlazorFullCalendarResource>?` | `null` | Resources displayed as rows in Timeline mode. Each event's `Resource` property is matched against the resource `Id`. The Timeline mode tab is hidden when `null` or empty |
+| `InitialMode` | `BlazorFullCalendarMode?` | `null` (Event) | Initial layout mode. `Event` shows day/week/month/year/agenda views. `Timeline` shows resources × time grid (day/week/month sub-views) and requires `Resources` to be non-empty |
 | `OnChange` | `EventCallback<BlazorFullCalendarChangeEventArgs>` | — | Raised when a user adds, edits, or deletes an event (`Kind`: `Add`, `Edit`, `Delete`; `Source`: `Dialog`, `Drag`, `Resize`, `Delete`) |
 | `OnAddClick` | `EventCallback<BlazorFullCalendarEvent?>` | — | When assigned, the built-in add dialog is suppressed. Receives a draft event with pre-filled dates from the clicked slot. Show your own creation UI and update `Events` after persisting |
 | `OnEventClick` | `EventCallback<BlazorFullCalendarEvent>` | — | When assigned, the built-in event details dialog is suppressed when an event is clicked. Receives the clicked event so you can show your own details UI |
@@ -314,10 +353,29 @@ public class BlazorFullCalendarEvent
     public BlazorFullCalendarEventColor Color { get; set; }
     public List<BlazorFullCalendarAttendee> Attendees { get; set; }
 
+    /// <summary>
+    /// Optional resource id (e.g. meeting room name) used by the resource timeline view
+    /// to place the event on the matching <see cref="BlazorFullCalendarResource"/> row.
+    /// Null/empty leaves the event unassigned.
+    /// </summary>
+    public string? Resource { get; set; }
+
     // Computed
     public bool IsSingleDay { get; }    // StartDate.Date == EndDate.Date
     public bool IsMultiDay { get; }     // !IsSingleDay
     public TimeSpan Duration { get; }   // EndDate - StartDate
+}
+```
+
+### BlazorFullCalendarResource
+
+```csharp
+public sealed class BlazorFullCalendarResource
+{
+    public string Id { get; set; }      // matched against BlazorFullCalendarEvent.Resource
+    public string Title { get; set; }   // display name shown on the timeline row
+    public string? Group { get; set; }  // optional grouping label
+    public object? Data { get; set; }
 }
 ```
 
@@ -374,6 +432,7 @@ public sealed class BlazorFullCalendarDateChangeEventArgs
 - **Day View**: Single-day detailed view with timeline, sidebar mini-calendar, and "Happening Now" panel
 - **Year View**: 12-month overview with per-day event bullet indicators
 - **Agenda View**: Searchable list grouped by date or user
+- **Timeline mode**: A separate top-level mode shown when `Resources` is supplied. Resources occupy the vertical axis and time the horizontal axis; the day, week, and month sub-views remain available inside Timeline. Day and week sub-views use one-hour columns; the month sub-view uses one-day columns to keep the time axis a sensible length. The grid scrolls horizontally when the time axis exceeds the visible width. Drag events between rows to reassign their `Resource`
 
 ---
 

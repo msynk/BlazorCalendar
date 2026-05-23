@@ -6,9 +6,11 @@ public class BlazorFullCalendarState
 {
     private List<BlazorFullCalendarEvent> _allEvents = [];
     private List<BlazorFullCalendarEvent> _filteredEvents = [];
+    private List<BlazorFullCalendarResource> _resources = [];
 
     public DateTime SelectedDate { get; private set; } = DateTime.Today;
     public BlazorFullCalendarView View { get; private set; } = BlazorFullCalendarView.Month;
+    public BlazorFullCalendarMode Mode { get; private set; } = BlazorFullCalendarMode.Event;
     public List<BlazorFullCalendarEventColor> SelectedColors { get; private set; } = [];
 
     /// <summary>When set, only events that include this attendee (by <see cref="BlazorFullCalendarHelpers.AttendeeFilterKey"/>) are shown.</summary>
@@ -31,6 +33,7 @@ public class BlazorFullCalendarState
 
     public IReadOnlyList<BlazorFullCalendarEvent> Events => _filteredEvents;
     public IReadOnlyList<BlazorFullCalendarEvent> AllEvents => _allEvents;
+    public IReadOnlyList<BlazorFullCalendarResource> Resources => _resources;
 
     public event Action? OnStateChanged;
     public event Action<BlazorFullCalendarDateChangeEventArgs>? OnDateRangeChanged;
@@ -58,9 +61,39 @@ public class BlazorFullCalendarState
 
     public void SetView(BlazorFullCalendarView view)
     {
-        View = view;
+        View = ClampViewForMode(view, Mode);
         UpdateUI();
         NotifyDateRangeChanged();
+    }
+
+    /// <summary>
+    /// Switches between Event and Timeline modes. When entering Timeline mode the active view
+    /// is clamped to Day / Week / Month (Year and Agenda are not supported in timeline mode).
+    /// </summary>
+    public void SetMode(BlazorFullCalendarMode mode)
+    {
+        if (Mode == mode)
+            return;
+
+        Mode = mode;
+        var clamped = ClampViewForMode(View, mode);
+        if (clamped != View)
+            View = clamped;
+
+        UpdateUI();
+        NotifyDateRangeChanged();
+    }
+
+    private static BlazorFullCalendarView ClampViewForMode(BlazorFullCalendarView view, BlazorFullCalendarMode mode)
+    {
+        if (mode != BlazorFullCalendarMode.Timeline)
+            return view;
+
+        return view switch
+        {
+            BlazorFullCalendarView.Day or BlazorFullCalendarView.Week or BlazorFullCalendarView.Month => view,
+            _ => BlazorFullCalendarView.Week
+        };
     }
 
     public void SetUse24HourFormat(bool value)
@@ -151,6 +184,34 @@ public class BlazorFullCalendarState
         _allEvents = [.. events];
         ApplyFilters();
         NotifyStateChanged();
+    }
+
+    /// <summary>
+    /// Replaces the resource list shown by the resource timeline view. Safe to call from
+    /// <c>OnParametersSet</c> — it short-circuits when the supplied list matches the current one.
+    /// </summary>
+    public void SyncResources(IReadOnlyList<BlazorFullCalendarResource>? resources)
+    {
+        var next = resources is null ? new List<BlazorFullCalendarResource>() : [.. resources];
+        if (ResourcesMatch(next))
+            return;
+
+        _resources = next;
+        NotifyStateChanged();
+    }
+
+    private bool ResourcesMatch(List<BlazorFullCalendarResource> resources)
+    {
+        if (_resources.Count != resources.Count)
+            return false;
+
+        for (var i = 0; i < _resources.Count; i++)
+        {
+            if (!ReferenceEquals(_resources[i], resources[i]))
+                return false;
+        }
+
+        return true;
     }
 
     private bool EventsMatch(List<BlazorFullCalendarEvent> events)
@@ -299,10 +360,21 @@ public class BlazorFullCalendarState
     }
 
     public void HandleDrop(DateTime targetDate, int? hour = null, int? minute = null)
+        => HandleDrop(targetDate, hour, minute, resourceId: null, applyResource: false);
+
+    /// <summary>
+    /// Drops the currently dragged event onto a date/time and optionally re-assigns its
+    /// <see cref="BlazorFullCalendarEvent.Resource"/>. When <paramref name="applyResource"/> is
+    /// <c>false</c> the event keeps its existing resource. Pass <paramref name="resourceId"/> as
+    /// <c>null</c> together with <paramref name="applyResource"/> = <c>true</c> to clear the
+    /// resource (drop on the unassigned row).
+    /// </summary>
+    public void HandleDrop(DateTime targetDate, int? hour, int? minute, string? resourceId, bool applyResource)
     {
         if (DraggedEvent == null) return;
 
         var originalStart = DraggedEvent.StartDate;
+        var originalResource = DraggedEvent.Resource;
         var duration = DraggedEvent.Duration;
 
         var newStart = targetDate.Date;
@@ -311,7 +383,11 @@ public class BlazorFullCalendarState
         else
             newStart = newStart.AddHours(originalStart.Hour).AddMinutes(originalStart.Minute);
 
-        if (newStart == originalStart)
+        var newResource = applyResource ? resourceId : originalResource;
+
+        var resourceChanged = applyResource && !string.Equals(originalResource ?? "", newResource ?? "", StringComparison.Ordinal);
+
+        if (newStart == originalStart && !resourceChanged)
         {
             EndDrag();
             return;
@@ -325,6 +401,8 @@ public class BlazorFullCalendarState
             StartDate = newStart,
             EndDate = newStart + duration,
             Color = DraggedEvent.Color,
+            Resource = newResource,
+            Data = DraggedEvent.Data,
             Attendees = [.. DraggedEvent.Attendees]
         };
 

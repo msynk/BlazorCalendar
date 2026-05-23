@@ -1,0 +1,46 @@
+@namespace BlazorFullCalendar
+
+@{
+    var isDotVariant = State.BadgeVariant == BlazorFullCalendarBadgeVariant.Dot;
+    var colorClass = isDotVariant ? "dot-variant" : BlazorFullCalendarHelpers.GetColorCss(Event.Color);
+    var passThrough = State.IsDragging && State.DraggedEvent?.Id != Event.Id;
+}
+
+<div class="bfc-timeline-event @colorClass @(passThrough ? "bfc-timeline-event-pass-through" : "")"
+     draggable="true"
+     title="@($"{Event.Title} ({BlazorFullCalendarHelpers.FormatTime(Event.StartDate, State.Use24HourFormat)} - {BlazorFullCalendarHelpers.FormatTime(Event.EndDate, State.Use24HourFormat)})")"
+     @ondragstart="OnDragStart"
+     @ondragend="OnDragEnd"
+     @onclick="OnClick"
+     @onclick:stopPropagation="true">
+
+    @if (EventTemplate != null)
+    {
+        @EventTemplate(Event)
+    }
+    else
+    {
+        <div class="bfc-timeline-event-row">
+            @if (isDotVariant)
+            {
+                <EventBullet Color="Event.Color" />
+            }
+            <span class="bfc-timeline-event-title">@Event.Title</span>
+        </div>
+        <div class="bfc-timeline-event-time">
+            @BlazorFullCalendarHelpers.FormatTime(Event.StartDate, State.Use24HourFormat) - @BlazorFullCalendarHelpers.FormatTime(Event.EndDate, State.Use24HourFormat)
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] public BlazorFullCalendarState State { get; set; } = default!;
+    [Parameter] public BlazorFullCalendarEvent Event { get; set; } = default!;
+    [Parameter] public EventCallback<BlazorFullCalendarEvent> OnSelected { get; set; }
+    [Parameter] public RenderFragment<BlazorFullCalendarEvent>? EventTemplate { get; set; }
+
+    private void OnDragStart() => State.StartDrag(Event);
+    private void OnDragEnd() => State.EndDrag();
+
+    private Task OnClick() => OnSelected.InvokeAsync(Event);
+}

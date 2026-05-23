@@ -1,24 +1,45 @@
 ﻿@namespace BlazorFullCalendar
 @implements IDisposable
 
-<div class="bfc-body" @key="State.View">
-    @switch (State.View)
+<div class="bfc-body" @key="(State.Mode, State.View)">
+    @if (State.Mode == BlazorFullCalendarMode.Timeline)
     {
-        case BlazorFullCalendarView.Month:
-            <CalendarMonthView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="MonthEventTemplate" />
-            break;
-        case BlazorFullCalendarView.Week:
-            <CalendarWeekView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="WeekEventTemplate" />
-            break;
-        case BlazorFullCalendarView.Day:
-            <CalendarDayView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="DayEventTemplate" />
-            break;
-        case BlazorFullCalendarView.Year:
-            <CalendarYearView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" />
-            break;
-        case BlazorFullCalendarView.Agenda:
-            <AgendaEvents />
-            break;
+        switch (State.View)
+        {
+            case BlazorFullCalendarView.Day:
+                <TimelineDayView Events="State.Events.ToList()" EventTemplate="TimelineEventTemplate" />
+                break;
+            case BlazorFullCalendarView.Week:
+                <TimelineWeekView Events="State.Events.ToList()" EventTemplate="TimelineEventTemplate" />
+                break;
+            case BlazorFullCalendarView.Month:
+                <TimelineMonthView Events="State.Events.ToList()" EventTemplate="TimelineEventTemplate" />
+                break;
+            default:
+                <TimelineWeekView Events="State.Events.ToList()" EventTemplate="TimelineEventTemplate" />
+                break;
+        }
+    }
+    else
+    {
+        switch (State.View)
+        {
+            case BlazorFullCalendarView.Month:
+                <CalendarMonthView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="MonthEventTemplate" />
+                break;
+            case BlazorFullCalendarView.Week:
+                <CalendarWeekView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="WeekEventTemplate" />
+                break;
+            case BlazorFullCalendarView.Day:
+                <CalendarDayView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" EventTemplate="DayEventTemplate" />
+                break;
+            case BlazorFullCalendarView.Year:
+                <CalendarYearView SingleDayEvents="_singleDayEvents" MultiDayEvents="_multiDayEvents" />
+                break;
+            case BlazorFullCalendarView.Agenda:
+                <AgendaEvents />
+                break;
+        }
     }
 </div>
 
@@ -28,6 +49,7 @@
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? MonthEventTemplate { get; set; }
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? WeekEventTemplate { get; set; }
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? DayEventTemplate { get; set; }
+    [Parameter] public RenderFragment<BlazorFullCalendarEvent>? TimelineEventTemplate { get; set; }
 
     private List<BlazorFullCalendarEvent> _singleDayEvents = [];
     private List<BlazorFullCalendarEvent> _multiDayEvents = [];

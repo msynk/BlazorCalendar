@@ -16,7 +16,8 @@
                                         <CalendarHeader />
                                         <CalendarBody MonthEventTemplate="MonthEventTemplate"
                                                       WeekEventTemplate="WeekEventTemplate"
-                                                      DayEventTemplate="DayEventTemplate" />
+                                                      DayEventTemplate="DayEventTemplate"
+                                                      TimelineEventTemplate="TimelineEventTemplate" />
                                         <CalendarToast />
                                     </div>
                                 </CascadingValue>
@@ -76,6 +77,13 @@
     /// When null or empty, all <see cref="BlazorFullCalendarEventColor"/> values are used in enum order.
     /// </summary>
     [Parameter] public IReadOnlyList<BlazorFullCalendarColorOption>? EventColorOptions { get; set; }
+
+    /// <summary>
+    /// Resources displayed as rows in the resource timeline view. When <c>null</c> or empty,
+    /// the resource timeline tab is hidden from the header. Each event's
+    /// <see cref="BlazorFullCalendarEvent.Resource"/> is matched against the resource <c>Id</c>.
+    /// </summary>
+    [Parameter] public IReadOnlyList<BlazorFullCalendarResource>? Resources { get; set; }
     
     /// <summary>
     /// Raised when a user adds, edits, or deletes an event in the calendar UI.
@@ -126,6 +134,12 @@
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? MonthEventTemplate { get; set; }
 
     /// <summary>
+    /// Optional template for customizing event rendering in the resource timeline view.
+    /// When provided, replaces the default event card content inside the timeline blocks.
+    /// </summary>
+    [Parameter] public RenderFragment<BlazorFullCalendarEvent>? TimelineEventTemplate { get; set; }
+
+    /// <summary>
     /// When <c>true</c> (default) the component automatically injects its CSS stylesheet and JavaScript
     /// into the page on first render — no manual <c>&lt;link&gt;</c> or <c>&lt;script&gt;</c> tags needed.
     /// Set to <c>false</c> when you prefer to manage assets yourself, for example to control load order
@@ -156,6 +170,14 @@
     /// </summary>
     [Parameter] public BlazorFullCalendarOptions Options { get; set; } = new();
 
+    /// <summary>
+    /// Initial layout mode. <see cref="BlazorFullCalendarMode.Event"/> shows the standard
+    /// day/week/month/year/agenda views. <see cref="BlazorFullCalendarMode.Timeline"/> switches to
+    /// the resource × time layout (day, week, month) and requires <see cref="Resources"/> to contain
+    /// at least one entry; otherwise the Timeline tab and mode have no effect.
+    /// </summary>
+    [Parameter] public BlazorFullCalendarMode? InitialMode { get; set; }
+
     public BlazorFullCalendarState State { get; set; } = new();
     private BlazorFullCalendarChangeNotifier _changeNotifier = default!;
     private BlazorFullCalendarColorScheme _colorScheme = new(null);
@@ -179,6 +201,8 @@
     {
         State.Initialize(Events ?? [], ResolveCulture());
         ApplyOptions();
+        if (InitialMode.HasValue)
+            State.SetMode(InitialMode.Value);
         _changeNotifier = new BlazorFullCalendarChangeNotifier(State, args => OnChange.InvokeAsync(args));
         State.OnStateChanged += HandleStateChanged;
         State.OnDateRangeChanged += HandleDateRangeChanged;
@@ -193,6 +217,8 @@
 
         if (Events is not null)
             State.SyncEvents(Events);
+
+        State.SyncResources(Resources);
 
         ApplyOptions();
     }
