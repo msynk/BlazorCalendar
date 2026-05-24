@@ -5,11 +5,13 @@ A feature-rich, interactive calendar component for Blazor applications. Built wi
 ## Features
 
 - **6 View Modes**: Day, Week, Month, Year, Agenda, plus a top-level **Timeline** mode (resource × time)
-- **Timeline mode**: Sits next to the default Events mode. Inside Timeline you keep day, week, and month views, but rows are resources (rooms, machines, people) and columns are time. Day/week use one-hour columns; month uses one-day columns. The grid scrolls horizontally when the time axis exceeds the visible width. Drag events between rows to reassign their resource
+- **Timeline mode**: Sits next to the default Events mode. Inside Timeline you keep day, week, and month views, but rows are resources (rooms, machines, people) and columns are time. Day/week use one-hour columns; month uses one-day columns. The resource column stays pinned to the start while the timeline scrolls horizontally; on first paint the timeline auto-scrolls to the configured start-of-day hour (and to today's column when today is in range). Drag events between rows to reassign their resource
 - **Event Management**: Create, edit, and delete events with a polished dialog and form validation
 - **Custom Add UI (`OnAddClick`)**: Suppress the built-in add dialog and receive a draft event so you can show your own creation experience
 - **Custom Event Click (`OnEventClick`)**: Suppress the built-in event details dialog and handle event clicks yourself
 - **Date Range Changes (`OnDateChange`)**: React when the visible range changes (prev/next/today navigation or switching views) with inclusive start/end dates and the active view
+- **Per-View Event Templates**: Customize event card content with `DayEventTemplate`, `WeekEventTemplate`, `MonthEventTemplate`, and `TimelineEventTemplate`
+- **Programmatic Options (`Options`)**: Drive initial preferences (dark mode, time format, badge variant, start hour, agenda grouping) from code
 - **Culture-Aware Date-Time Picker**: Built-in dropdown date-time picker in add/edit dialogs (no browser-native `datetime-local`) with culture calendar rendering support (including `fa-IR`)
 - **Drag & Drop**: Move events between time slots and dates with native HTML5 drag-and-drop
 - **Resize**: Drag the top or bottom handle of any day/week event block to adjust its start or end time
@@ -286,6 +288,33 @@ When `HideSettings` is `true`, the built-in settings gear button is hidden from 
 }
 ```
 
+### Custom Event Templates
+
+Replace the default card content inside any view by supplying a per-view `RenderFragment<BlazorFullCalendarEvent>`. Templates receive the event being rendered. Day/week/timeline templates render inside the time-grid block; the month template renders inside the day cell badge.
+
+```razor
+<BlazorFullCalendar Events="myEvents"
+                    DayEventTemplate="EventCard"
+                    WeekEventTemplate="EventCard"
+                    TimelineEventTemplate="EventCard"
+                    MonthEventTemplate="MonthBadge"
+                    @rendermode="InteractiveServer" />
+
+@code {
+    private RenderFragment<BlazorFullCalendarEvent> EventCard => ev =>
+        @<div style="display:flex;flex-direction:column;gap:2px;">
+            <strong>@ev.Title</strong>
+            @if (!string.IsNullOrWhiteSpace(ev.Description))
+            {
+                <span style="font-size:11px;opacity:.8;">@ev.Description</span>
+            }
+        </div>;
+
+    private RenderFragment<BlazorFullCalendarEvent> MonthBadge => ev =>
+        @<span>📌 @ev.Title</span>;
+}
+```
+
 ### Localization Notes
 
 - The event add/edit dialog uses a custom dropdown date-time picker instead of native browser date inputs.
@@ -334,6 +363,11 @@ When `HideSettings` is `true`, the built-in settings gear button is hidden from 
 | `OnDateChange` | `EventCallback<BlazorFullCalendarDateChangeEventArgs>` | — | Raised when the visible date range changes after prev/next/today navigation or a view switch. Payload includes inclusive `Start`/`End` and the active `View` |
 | `HideFilters` | `bool` | `false` | When `true`, hides the built-in color and attendee filter dropdowns. Consumers provide their own filter UI and pass pre-filtered events |
 | `HideSettings` | `bool` | `false` | When `true`, hides the built-in settings gear button. Settings can still be driven programmatically through `Options` |
+| `Options` | `BlazorFullCalendarOptions` | `new()` | Initial preferences — dark mode, 12/24-hour time format, badge variant, day start hour, and agenda grouping |
+| `DayEventTemplate` | `RenderFragment<BlazorFullCalendarEvent>?` | `null` | Replaces the default event card content inside day-view time-grid blocks |
+| `WeekEventTemplate` | `RenderFragment<BlazorFullCalendarEvent>?` | `null` | Replaces the default event card content inside week-view time-grid blocks |
+| `MonthEventTemplate` | `RenderFragment<BlazorFullCalendarEvent>?` | `null` | Replaces the default event badge content inside month-view cells |
+| `TimelineEventTemplate` | `RenderFragment<BlazorFullCalendarEvent>?` | `null` | Replaces the default event card content inside Timeline mode blocks |
 | `LoadAssets` | `bool` | `true` | When `true` the component automatically injects its CSS and JS into the page on first render. Set to `false` to manage assets manually (see [Asset loading](#4-asset-loading)) |
 
 ---
@@ -432,7 +466,7 @@ public sealed class BlazorFullCalendarDateChangeEventArgs
 - **Day View**: Single-day detailed view with timeline, sidebar mini-calendar, and "Happening Now" panel
 - **Year View**: 12-month overview with per-day event bullet indicators
 - **Agenda View**: Searchable list grouped by date or user
-- **Timeline mode**: A separate top-level mode shown when `Resources` is supplied. Resources occupy the vertical axis and time the horizontal axis; the day, week, and month sub-views remain available inside Timeline. Day and week sub-views use one-hour columns; the month sub-view uses one-day columns to keep the time axis a sensible length. The grid scrolls horizontally when the time axis exceeds the visible width. Drag events between rows to reassign their `Resource`
+- **Timeline mode**: A separate top-level mode shown when `Resources` is supplied. Resources occupy the vertical axis and time the horizontal axis; the day, week, and month sub-views remain available inside Timeline. Day and week sub-views use one-hour columns; the month sub-view uses one-day columns to keep the time axis a sensible length. The resource column stays pinned to the leading edge while the time axis scrolls horizontally. On first paint the grid auto-scrolls to the start-of-day hour, and to today's day column when today falls inside the visible range. Drag events between rows to reassign their `Resource`
 
 ---
 
