@@ -1,4 +1,5 @@
 @namespace BlazorFullCalendar
+@inject IJSRuntime JS
 
 @*
   Timeline mode - Day view.
@@ -7,10 +8,10 @@
 
 @{
     const int hourWidth = BlazorFullCalendarHelpers.TimelineHourWidthPx;
-    const int laneHeight = 36;
+    const int laneHeight = 44;
     const int laneGap = 4;
     const int rowPadding = 4;
-    const int minRowHeight = 56;
+    const int minRowHeight = 60;
 
     var resources = State.Resources;
     var resourceIds = resources.Select(r => r.Id).Where(id => !string.IsNullOrEmpty(id)).ToList();
@@ -27,10 +28,12 @@
     }
 
     var hasUnassigned = grouped.TryGetValue(_unassignedKey, out var u) && u.Count > 0;
+    var scrollHour = State.StartOfDayHour;
 }
 
 <TimelineLayout ColumnCount="24"
                 ColumnWidthPx="hourWidth"
+                ScrollContainerId="@_scrollContainerId"
                 HasUnassignedRow="hasUnassigned"
                 RowHeightFor="r => RowHeight(LaneCountFor(r.Id))"
                 UnassignedRowHeight="RowHeight(hasUnassigned ? grouped[_unassignedKey].Count : 1)">
@@ -40,7 +43,8 @@
             @for (var h = 0; h < 24; h++)
             {
                 var hour = h;
-                <div class="bfc-tl-time-cell" style="width:@(hourWidth)px;">
+                var isScrollTarget = hour == scrollHour;
+                <div class="bfc-tl-time-cell" style="width:@(hourWidth)px;" data-bfc-tl-scroll-target="@(isScrollTarget ? "true" : null)">
                     <span class="bfc-tl-time-cell-label">@BlazorFullCalendarHelpers.FormatHourLabel(hour, State.Use24HourFormat)</span>
                 </div>
             }
@@ -134,9 +138,12 @@
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? EventTemplate { get; set; }
 
     private const string _unassignedKey = "__bfc_unassigned__";
-    private const int _laneHeight = 36;
+    private const int _laneHeight = 44;
     private const int _laneGap = 4;
     private const int _rowPadding = 4;
+    private const string _scrollContainerId = "bfc-tl-day-scroll";
+
+    private string? _scrollSignature;
 
     private BlazorFullCalendarEvent? _selectedEvent;
     private bool _showAddDialog;
@@ -216,5 +223,14 @@
         _dragMinute = null;
         var newResourceId = resourceId == _unassignedKey ? null : resourceId;
         await Notifier.HandleResourceDropAsync(State.SelectedDate, hour, minute, newResourceId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var sig = $"{State.SelectedDate:yyyy-MM-dd}|{State.StartOfDayHour}";
+        if (sig == _scrollSignature) return;
+
+        if (await TimelineScrollInterop.TryScrollToTargetAsync(JS, _scrollContainerId))
+            _scrollSignature = sig;
     }
 }

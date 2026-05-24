@@ -1,4 +1,5 @@
 @namespace BlazorFullCalendar
+@inject IJSRuntime JS
 
 @*
   Timeline mode - Month view.
@@ -8,10 +9,10 @@
 
 @{
     const int dayWidth = BlazorFullCalendarHelpers.TimelineDayWidthPx;
-    const int laneHeight = 28;
+    const int laneHeight = 40;
     const int laneGap = 4;
     const int rowPadding = 4;
-    const int minRowHeight = 56;
+    const int minRowHeight = 60;
 
     var culture = State.Culture;
     var cal = culture.Calendar;
@@ -39,22 +40,29 @@
 
     var hasUnassigned = perResource.TryGetValue(_unassignedKey, out var u) && u.Count > 0;
     var unassignedLaneCount = hasUnassigned ? perResource[_unassignedKey].Count : 1;
+
+    // If today falls inside the active month, scroll horizontally to today's day cell.
+    var todayIdx = Array.FindIndex(monthDays, d => d.Date == DateTime.Today);
 }
 
 <TimelineLayout ColumnCount="daysInMonth"
                 ColumnWidthPx="dayWidth"
+                ScrollContainerId="@_scrollContainerId"
                 HasUnassignedRow="hasUnassigned"
                 RowHeightFor="r => RowHeight(LaneCountFor(r.Id))"
                 UnassignedRowHeight="RowHeight(unassignedLaneCount)">
 
     <HeaderContent>
         <div class="bfc-tl-time-row bfc-tl-time-row-slots">
-            @foreach (var d in monthDays)
+            @for (var di = 0; di < monthDays.Length; di++)
             {
+                var dayIndex = di;
+                var d = monthDays[dayIndex];
                 var isToday = d.Date == DateTime.Today;
                 var dayNum = BlazorFullCalendarHelpers.GetCulturalDayOfMonth(d, culture);
                 var dowInitial = culture.DateTimeFormat.GetShortestDayName(d.DayOfWeek);
-                <div class="bfc-tl-time-cell @(isToday ? "today" : "")" style="width:@(dayWidth)px;">
+                var isScrollTarget = dayIndex == todayIdx;
+                <div class="bfc-tl-time-cell @(isToday ? "today" : "")" style="width:@(dayWidth)px;" data-bfc-tl-scroll-target="@(isScrollTarget ? "true" : null)">
                     <span class="bfc-tl-time-cell-label">@dayNum @dowInitial</span>
                 </div>
             }
@@ -131,9 +139,12 @@
     [Parameter] public RenderFragment<BlazorFullCalendarEvent>? EventTemplate { get; set; }
 
     private const string _unassignedKey = "__bfc_unassigned__";
-    private const int _laneHeight = 28;
+    private const int _laneHeight = 40;
     private const int _laneGap = 4;
     private const int _rowPadding = 4;
+    private const string _scrollContainerId = "bfc-tl-month-scroll";
+
+    private string? _scrollSignature;
 
     private BlazorFullCalendarEvent? _selectedEvent;
     private bool _showAddDialog;
@@ -222,5 +233,14 @@
         // Day-precision drop: keep the original time of day (passing null hour/minute makes
         // HandleResourceDropAsync preserve the dragged event's time).
         await Notifier.HandleResourceDropAsync(day, hour: null, minute: null, newResourceId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var sig = $"{State.SelectedDate:yyyy-MM}|{DateTime.Today:yyyy-MM-dd}";
+        if (sig == _scrollSignature) return;
+
+        if (await TimelineScrollInterop.TryScrollToTargetAsync(JS, _scrollContainerId))
+            _scrollSignature = sig;
     }
 }

@@ -11,9 +11,17 @@ public static class DemoResourceData
         new() { Id = "room-bay",       Title = "HQ - Bay Wing",          Group = "Headquarters" },
         new() { Id = "room-garden",    Title = "The Garden - Room 204",  Group = "Headquarters" },
         new() { Id = "room-exec",      Title = "Executive Studio (14F)", Group = "Headquarters" },
+        new() { Id = "room-summit",    Title = "Summit Boardroom",       Group = "Headquarters" },
+        new() { Id = "room-atrium",    Title = "Atrium Lounge",          Group = "Headquarters" },
         new() { Id = "room-deep-work", Title = "Deep Work Pods",         Group = "Quiet Floor" },
+        new() { Id = "room-library",   Title = "Library",                Group = "Quiet Floor" },
+        new() { Id = "room-phone",     Title = "Phone Booth A",          Group = "Quiet Floor" },
         new() { Id = "room-war",       Title = "War Room (B1)",          Group = "Basement" },
+        new() { Id = "room-vault",     Title = "The Vault",              Group = "Basement" },
+        new() { Id = "room-workshop",  Title = "Workshop & Lab",         Group = "Basement" },
         new() { Id = "room-customer",  Title = "Customer Lab",           Group = "Ground Floor" },
+        new() { Id = "room-cafe",      Title = "Cafe Corner",            Group = "Ground Floor" },
+        new() { Id = "room-rooftop",   Title = "Rooftop Terrace",        Group = "Ground Floor" },
     ];
 
     public static List<BlazorFullCalendarEvent> CreateEvents()
@@ -62,6 +70,19 @@ public static class DemoResourceData
             E("API pairing",         0, 15,  0, 0, 16, 30, BlazorFullCalendarEventColor.Red,    "room-bay",       "Implement rate limiting together."),
             E("Sprint Planning",     0, 14,  0, 0, 15, 30, BlazorFullCalendarEventColor.Orange, "room-garden",    "Next sprint goals and capacity."),
             E("Focus block",         0, 13,  0, 0, 15,  0, BlazorFullCalendarEventColor.Blue,   "room-deep-work", "Deep work - notifications off."),
+
+            // Bookings on the additional spaces so every row has something visible.
+            E("Quarterly Strategy",  0,  9,  0, 0, 10, 30, BlazorFullCalendarEventColor.Purple, "room-summit",    "Strategy roadmap with leads."),
+            E("1:1 with Sam",        0, 14,  0, 0, 14, 30, BlazorFullCalendarEventColor.Blue,   "room-summit",    "Career growth chat."),
+            E("Casual sync",         0, 11, 30, 0, 12,  0, BlazorFullCalendarEventColor.Green,  "room-atrium",    "Quick design pairing."),
+            E("Reading time",        0,  9,  0, 0, 10,  0, BlazorFullCalendarEventColor.Yellow, "room-library",   "Catch up on RFCs."),
+            E("Spec drafting",       0, 13,  0, 0, 15,  0, BlazorFullCalendarEventColor.Blue,   "room-library",   "Draft Q4 platform spec."),
+            E("Recruiter call",      0, 10,  0, 0, 10, 30, BlazorFullCalendarEventColor.Orange, "room-phone",     "External candidate screen."),
+            E("Vendor sync",         0, 15,  0, 0, 15, 45, BlazorFullCalendarEventColor.Yellow, "room-phone",     "Renewal walkthrough."),
+            E("Backups review",      0, 11,  0, 0, 12,  0, BlazorFullCalendarEventColor.Red,    "room-vault",     "DR posture audit."),
+            E("Hardware repair",     0, 13,  0, 0, 16,  0, BlazorFullCalendarEventColor.Orange, "room-workshop",  "Replace failing SSDs."),
+            E("Coffee tasting",      0, 10, 30, 0, 11, 15, BlazorFullCalendarEventColor.Green,  "room-cafe",      "New roast trial with the team."),
+            E("Happy hour",          0, 17,  0, 0, 18, 30, BlazorFullCalendarEventColor.Purple, "room-rooftop",   "End-of-week wind down."),
 
             // Other days this week (visible in timeline week view)
             E("All hands",           1, 10,  0, 1, 11,  0, BlazorFullCalendarEventColor.Blue,   "room-exec",      "Company-wide weekly."),

@@ -3,11 +3,9 @@
 @*
   Shared scaffolding used by every timeline view.
 
-  Layout (CSS grid):
-    - top-left   : sticky resource column header
-    - top-right  : sticky time-axis header (group headers + slot headers)
-    - bottom-left: sticky resource list
-    - bottom-right: scrollable lane grid (scrolls horizontally and vertically)
+  Layout (flex rows so the resource gutter can stay pinned across the full horizontal scroll):
+    - header row : flex row that sticks to the top; corner cell sticks to the inline-start
+    - body rows  : flex rows; each starts with the sticky resource cell, followed by the lane area
 
   Each timeline view renders the time-axis header inside <HeaderContent /> and the lane content
   for every resource inside <RowContent context="resource" />, while this component handles the
@@ -18,6 +16,7 @@
     var resources = State.Resources;
     var hasResources = resources.Count > 0;
     var totalContentWidth = ColumnCount * ColumnWidthPx;
+    var totalGridWidth = ResourceColumnWidthPx + totalContentWidth;
 }
 
 <div class="bfc-tl-layout">
@@ -27,13 +26,14 @@
     }
     else
     {
-        <div class="bfc-tl-scroll">
-            <div class="bfc-tl-grid" style="grid-template-columns:@(ResourceColumnWidthPx)px @(totalContentWidth)px;">
+        <div id="@ScrollContainerId" class="bfc-tl-scroll">
+            <div class="bfc-tl-grid" style="width:@(totalGridWidth)px;">
 
-                <div class="bfc-tl-corner">@Texts.ResourceColumnHeader</div>
-
-                <div class="bfc-tl-time-header" style="width:@(totalContentWidth)px;">
-                    @HeaderContent
+                <div class="bfc-tl-header-row" style="width:@(totalGridWidth)px;">
+                    <div class="bfc-tl-corner" style="width:@(ResourceColumnWidthPx)px;">@Texts.ResourceColumnHeader</div>
+                    <div class="bfc-tl-time-header" style="width:@(totalContentWidth)px;">
+                        @HeaderContent
+                    </div>
                 </div>
 
                 @foreach (var resource in resources)
@@ -41,15 +41,17 @@
                     var res = resource;
                     var rowHeight = RowHeightFor(res);
 
-                    <div class="bfc-tl-resource-cell" style="height:@(rowHeight)px;">
-                        <div class="bfc-tl-resource-title">@res.Title</div>
-                        @if (!string.IsNullOrWhiteSpace(res.Group))
-                        {
-                            <div class="bfc-tl-resource-group">@res.Group</div>
-                        }
-                    </div>
-                    <div class="bfc-tl-row" style="height:@(rowHeight)px;width:@(totalContentWidth)px;">
-                        @RowContent(res)
+                    <div class="bfc-tl-body-row" style="height:@(rowHeight)px;width:@(totalGridWidth)px;">
+                        <div class="bfc-tl-resource-cell" style="width:@(ResourceColumnWidthPx)px;height:@(rowHeight)px;">
+                            <div class="bfc-tl-resource-title">@res.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(res.Group))
+                            {
+                                <div class="bfc-tl-resource-group">@res.Group</div>
+                            }
+                        </div>
+                        <div class="bfc-tl-row" style="height:@(rowHeight)px;width:@(totalContentWidth)px;">
+                            @RowContent(res)
+                        </div>
                     </div>
                 }
 
@@ -57,11 +59,13 @@
                 {
                     var unassignedHeight = UnassignedRowHeight;
 
-                    <div class="bfc-tl-resource-cell bfc-tl-resource-cell-unassigned" style="height:@(unassignedHeight)px;">
-                        <div class="bfc-tl-resource-title">@Texts.NoResourceLabel</div>
-                    </div>
-                    <div class="bfc-tl-row" style="height:@(unassignedHeight)px;width:@(totalContentWidth)px;">
-                        @UnassignedRowContent
+                    <div class="bfc-tl-body-row" style="height:@(unassignedHeight)px;width:@(totalGridWidth)px;">
+                        <div class="bfc-tl-resource-cell bfc-tl-resource-cell-unassigned" style="width:@(ResourceColumnWidthPx)px;height:@(unassignedHeight)px;">
+                            <div class="bfc-tl-resource-title">@Texts.NoResourceLabel</div>
+                        </div>
+                        <div class="bfc-tl-row" style="height:@(unassignedHeight)px;width:@(totalContentWidth)px;">
+                            @UnassignedRowContent
+                        </div>
                     </div>
                 }
             </div>
@@ -81,6 +85,9 @@
 
     /// <summary>Width of the sticky resource gutter on the left.</summary>
     [Parameter] public int ResourceColumnWidthPx { get; set; } = 200;
+
+    /// <summary>DOM id assigned to the horizontal scroll container so views can scroll it via JS interop.</summary>
+    [Parameter] public string ScrollContainerId { get; set; } = "bfc-tl-scroll";
 
     /// <summary>Time-axis header(s) rendered in the top-right cell. Total width must equal <c>ColumnCount * ColumnWidthPx</c>.</summary>
     [Parameter] public RenderFragment? HeaderContent { get; set; }

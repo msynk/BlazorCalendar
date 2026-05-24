@@ -13,6 +13,34 @@ window.BlazorFullCalendar = {
         }
     },
 
+    /**
+     * Scrolls the timeline scroll container horizontally so the element marked with
+     * data-bfc-tl-scroll-target="true" sits just past the sticky resource gutter.
+     * Direction-aware (works in both LTR and RTL layouts). Returns true if a target was
+     * found and scroll was applied (or already in position), false otherwise.
+     */
+    scrollTimelineToTarget: function (scrollContainerId) {
+        const container = document.getElementById(scrollContainerId);
+        if (!container) return false;
+        const target = container.querySelector('[data-bfc-tl-scroll-target="true"]');
+        if (!target) return false;
+
+        const gutter = container.querySelector('.bfc-tl-corner');
+        const gutterWidth = gutter ? gutter.getBoundingClientRect().width : 0;
+
+        const cRect = container.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
+        const isRtl = getComputedStyle(container).direction === "rtl";
+
+        const delta = isRtl
+            ? tRect.right - (cRect.right - gutterWidth)
+            : tRect.left - (cRect.left + gutterWidth);
+        if (Math.abs(delta) >= 0.5) {
+            container.scrollLeft += delta;
+        }
+        return true;
+    },
+
     scrollAgendaToDate: function (scrollContainerId, dateIso) {
         const container = document.getElementById(scrollContainerId);
         if (!container) return;
