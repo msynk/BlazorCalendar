@@ -35,6 +35,31 @@
         </div>
     </div>
 
+    <!-- Timeline mode & resources -->
+    <div style="margin-bottom:48px;">
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <span style="width:36px;height:36px;border-radius:10px;background:#ecfeff;color:#0891b2;display:inline-flex;align-items:center;justify-content:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </span>
+            Timeline mode &amp; resources
+        </h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;">
+            @foreach (var feat in _timeline)
+            {
+                <div class="demo-feature-card" style="padding:16px;">
+                    <h3 style="font-size:14px;margin-bottom:4px;">@feat.Name</h3>
+                    <p>@feat.Desc</p>
+                </div>
+            }
+        </div>
+        <div style="margin-top:14px;">
+            <a href="/resource-timeline" class="demo-btn demo-btn-secondary" style="font-size:13px;padding:10px 18px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                Open the Resource Timeline walkthrough
+            </a>
+        </div>
+    </div>
+
     <!-- Event Management -->
     <div style="margin-bottom:48px;">
         <h2 style="font-size:22px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
@@ -140,6 +165,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             Templates &amp; handlers showcase
         </a>
+        <a href="/resource-timeline" class="demo-btn demo-btn-secondary" style="font-size:15px;padding:14px 32px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            Resource Timeline walkthrough
+        </a>
     </div>
 </div>
 
@@ -160,6 +189,7 @@
         new("Day View", "Single-day time grid with sidebar mini-calendar, 'Happening Now' panel, and detailed hourly slots."),
         new("Year View", "12-month overview grid (4x3) with colored event bullets. Click a day to see events, click month name to navigate."),
         new("Agenda View", "Searchable list of events for the current month. Group by date or color. Quick overview of everything scheduled."),
+        new("Timeline mode", "A separate top-level mode with day, week, and month sub-views. Resources go down, time goes across. Tab appears automatically when you supply Resources."),
     ];
 
     private static readonly FeatureItem[] _eventFeatures =
@@ -181,15 +211,29 @@
         new("Drop Zone Feedback", "Visual highlighting of valid drop targets when dragging an event, making it clear where it will land."),
         new("Resize Handles", "Top and bottom resize handles on event blocks in day/week views for adjusting start or end times."),
         new("Click-to-Create", "Click any empty hour slot in day/week view to open the add-event dialog pre-filled with that time."),
+        new("Reassign across resources", "Drag an event between rows in Timeline mode to update its Resource. The change flows through OnChange with Source = Drag."),
         new("OnDateChange", "Subscribe when the visible range changes (prev/next/today or view switch). Args include inclusive Start/End and the active BlazorFullCalendarView."),
         new("Custom add & details", "Assign OnAddClick or OnEventClick to suppress the built-in dialogs and drive your own modals or navigation while keeping drag-and-drop behavior."),
     ];
 
+    private static readonly FeatureItem[] _timeline =
+    [
+        new("Resources parameter", "Pass a list of BlazorFullCalendarResource (Id, Title, optional Subtitle, Data). The Timeline tab is hidden when no resources are supplied."),
+        new("Resource × time grid", "Day and week sub-views use one-hour columns; month uses one-day columns so the time axis stays a sensible length."),
+        new("Pinned resource column", "The resource column stays fixed to the leading edge while the time axis scrolls horizontally — labels are always visible."),
+        new("Auto-scroll on first paint", "Timeline scrolls to the configured StartOfDayHour and to today's column when today falls inside the visible range."),
+        new("InitialMode parameter", "Land directly in Timeline mode (or stay on the standard Events mode) without user interaction."),
+        new("Unassigned row", "Events without a matching Resource id surface in a dedicated row so nothing slips through the cracks."),
+        new("TimelineEventTemplate", "Same RenderFragment<BlazorFullCalendarEvent> hook as the other view templates, scoped to Timeline blocks."),
+        new("Resource subtitle", "Optional secondary label rendered under the resource title — handy for buildings, departments, or grouping cues."),
+    ];
+
     private static readonly FeatureItem[] _customization =
     [
-        new("Month / week / day templates", "MonthEventTemplate, WeekEventTemplate, and DayEventTemplate are RenderFragment<BlazorFullCalendarEvent> hooks — replace inner content while keeping layout, drag, resize, and clicks."),
+        new("Per-view templates", "MonthEventTemplate, WeekEventTemplate, DayEventTemplate, and TimelineEventTemplate are RenderFragment<BlazorFullCalendarEvent> hooks — replace inner content while keeping layout, drag, resize, and clicks."),
         new("Localized UI strings", "BlazorFullCalendarTexts overrides every label, button, validation message, and ARIA hint so you can ship translations without forking markup."),
         new("Header chrome toggles", "HideFilters hides built-in color and attendee dropdowns (pair with your own filters). HideSettings hides the gear menu while Options still sets defaults programmatically."),
+        new("InitialMode parameter", "Mount the calendar directly in Timeline mode when you supply Resources, or stay on the default Events mode."),
         new("Asset loading", "LoadAssets defaults to true and injects CSS/JS from _content on first render. Turn it off when you manage static files or bundlers yourself."),
     ];
 

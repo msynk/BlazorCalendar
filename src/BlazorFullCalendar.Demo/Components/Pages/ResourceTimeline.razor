@@ -110,11 +110,12 @@
     </div>
 
     <div class="demo-calendar-container" style="height:720px;">
-        <BlazorFullCalendar Events="_events"
-                            Resources="_resources"
+        <BlazorFullCalendar HideFilters
+                            Events="_events"
                             Options="_options"
-                            InitialMode="BlazorFullCalendarMode.Timeline"
-                            OnChange="HandleChange" />
+                            Resources="_resources"
+                            OnChange="HandleChange" 
+                            InitialMode="BlazorFullCalendarMode.Timeline" />
     </div>
 
     <div style="margin-top:16px;padding:12px 16px;border:1px solid var(--demo-border);border-radius:var(--demo-radius);background:var(--demo-surface);">
