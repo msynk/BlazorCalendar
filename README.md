@@ -144,9 +144,9 @@ The Timeline **mode** is a top-level layout that sits alongside the default **Ev
 @code {
     private readonly List<BlazorFullCalendarResource> rooms =
     [
-        new() { Id = "room-bay",    Title = "HQ - Bay Wing",   Group = "Headquarters" },
-        new() { Id = "room-garden", Title = "The Garden",      Group = "Headquarters" },
-        new() { Id = "room-war",    Title = "War Room (B1)",   Group = "Basement" },
+        new() { Id = "room-bay",    Title = "HQ - Bay Wing",   Subtitle = "Headquarters" },
+        new() { Id = "room-garden", Title = "The Garden",      Subtitle = "Headquarters" },
+        new() { Id = "room-war",    Title = "War Room (B1)",   Subtitle = "Basement" },
     ];
 
     private readonly List<BlazorFullCalendarEvent> events =
@@ -406,9 +406,9 @@ public class BlazorFullCalendarEvent
 ```csharp
 public sealed class BlazorFullCalendarResource
 {
-    public string Id { get; set; }      // matched against BlazorFullCalendarEvent.Resource
-    public string Title { get; set; }   // display name shown on the timeline row
-    public string? Group { get; set; }  // optional grouping label
+    public string Id { get; set; }         // matched against BlazorFullCalendarEvent.Resource
+    public string Title { get; set; }      // display name shown on the timeline row
+    public string? Subtitle { get; set; }  // optional subtitle shown below the title
     public object? Data { get; set; }
 }
 ```

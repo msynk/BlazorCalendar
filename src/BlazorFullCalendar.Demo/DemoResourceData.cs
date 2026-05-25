@@ -8,20 +8,20 @@ public static class DemoResourceData
 {
     public static List<BlazorFullCalendarResource> CreateResources() =>
     [
-        new() { Id = "room-bay",       Title = "HQ - Bay Wing",          Group = "Headquarters" },
-        new() { Id = "room-garden",    Title = "The Garden - Room 204",  Group = "Headquarters" },
-        new() { Id = "room-exec",      Title = "Executive Studio (14F)", Group = "Headquarters" },
-        new() { Id = "room-summit",    Title = "Summit Boardroom",       Group = "Headquarters" },
-        new() { Id = "room-atrium",    Title = "Atrium Lounge",          Group = "Headquarters" },
-        new() { Id = "room-deep-work", Title = "Deep Work Pods",         Group = "Quiet Floor" },
-        new() { Id = "room-library",   Title = "Library",                Group = "Quiet Floor" },
-        new() { Id = "room-phone",     Title = "Phone Booth A",          Group = "Quiet Floor" },
-        new() { Id = "room-war",       Title = "War Room (B1)",          Group = "Basement" },
-        new() { Id = "room-vault",     Title = "The Vault",              Group = "Basement" },
-        new() { Id = "room-workshop",  Title = "Workshop & Lab",         Group = "Basement" },
-        new() { Id = "room-customer",  Title = "Customer Lab",           Group = "Ground Floor" },
-        new() { Id = "room-cafe",      Title = "Cafe Corner",            Group = "Ground Floor" },
-        new() { Id = "room-rooftop",   Title = "Rooftop Terrace",        Group = "Ground Floor" },
+        new() { Id = "room-bay",       Title = "HQ - Bay Wing",          Subtitle = "Headquarters" },
+        new() { Id = "room-garden",    Title = "The Garden - Room 204",  Subtitle = "Headquarters" },
+        new() { Id = "room-exec",      Title = "Executive Studio (14F)", Subtitle = "Headquarters" },
+        new() { Id = "room-summit",    Title = "Summit Boardroom",       Subtitle = "Headquarters" },
+        new() { Id = "room-atrium",    Title = "Atrium Lounge",          Subtitle = "Headquarters" },
+        new() { Id = "room-deep-work", Title = "Deep Work Pods",         Subtitle = "Quiet Floor" },
+        new() { Id = "room-library",   Title = "Library",                Subtitle = "Quiet Floor" },
+        new() { Id = "room-phone",     Title = "Phone Booth A",          Subtitle = "Quiet Floor" },
+        new() { Id = "room-war",       Title = "War Room (B1)",          Subtitle = "Basement" },
+        new() { Id = "room-vault",     Title = "The Vault",              Subtitle = "Basement" },
+        new() { Id = "room-workshop",  Title = "Workshop & Lab",         Subtitle = "Basement" },
+        new() { Id = "room-customer",  Title = "Customer Lab",           Subtitle = "Ground Floor" },
+        new() { Id = "room-cafe",      Title = "Cafe Corner",            Subtitle = "Ground Floor" },
+        new() { Id = "room-rooftop",   Title = "Rooftop Terrace",        Subtitle = "Ground Floor" },
     ];
 
     public static List<BlazorFullCalendarEvent> CreateEvents()

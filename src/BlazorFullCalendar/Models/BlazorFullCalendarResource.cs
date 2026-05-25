@@ -19,9 +19,9 @@ public sealed class BlazorFullCalendarResource
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
-    /// Optional group label used to visually group resource rows (for example building, department).
+    /// Optional subtitle shown below the resource title (for example building, department).
     /// </summary>
-    public string? Group { get; set; }
+    public string? Subtitle { get; set; }
 
     /// <summary>
     /// Optional consumer-defined payload available to templates and click handlers.

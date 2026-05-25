@@ -44,9 +44,9 @@
                     <div class="bfc-tl-body-row" style="height:@(rowHeight)px;width:@(totalGridWidth)px;">
                         <div class="bfc-tl-resource-cell" style="width:@(ResourceColumnWidthPx)px;height:@(rowHeight)px;">
                             <div class="bfc-tl-resource-title">@res.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(res.Group))
+                            @if (!string.IsNullOrWhiteSpace(res.Subtitle))
                             {
-                                <div class="bfc-tl-resource-group">@res.Group</div>
+                                <div class="bfc-tl-resource-subtitle">@res.Subtitle</div>
                             }
                         </div>
                         <div class="bfc-tl-row" style="height:@(rowHeight)px;width:@(totalContentWidth)px;">

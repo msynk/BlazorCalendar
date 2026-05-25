@@ -1891,7 +1891,7 @@
     text-overflow: ellipsis;
 }
 
-.bfc-tl-resource-group {
+.bfc-tl-resource-subtitle {
     font-size: 11px;
     color: var(--bfc-text-muted);
     white-space: nowrap;

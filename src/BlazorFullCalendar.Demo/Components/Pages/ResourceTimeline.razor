@@ -44,16 +44,16 @@
             </div>
             <div class="demo-showcase-card-body">
                 <p>
-                    A resource is just an <code>Id</code>, a <code>Title</code>, and an optional <code>Group</code>.
+                    A resource is just an <code>Id</code>, a <code>Title</code>, and an optional <code>Subtitle</code>.
                     Resources are matched against <code>BlazorFullCalendarEvent.Resource</code> by their <code>Id</code>.
                 </p>
                 <div class="demo-code-block" style="margin:0;">
                     <div class="demo-code-label">Define resources</div>
                     <pre><span class="kw">var</span> rooms = <span class="kw">new</span> <span class="type">List&lt;BlazorFullCalendarResource&gt;</span>
 {
-    <span class="kw">new</span>() { Id = <span class="str">"room-bay"</span>,    Title = <span class="str">"HQ - Bay Wing"</span>, Group = <span class="str">"Headquarters"</span> },
-    <span class="kw">new</span>() { Id = <span class="str">"room-garden"</span>, Title = <span class="str">"The Garden"</span>,    Group = <span class="str">"Headquarters"</span> },
-    <span class="kw">new</span>() { Id = <span class="str">"room-war"</span>,    Title = <span class="str">"War Room (B1)"</span>, Group = <span class="str">"Basement"</span> },
+    <span class="kw">new</span>() { Id = <span class="str">"room-bay"</span>,    Title = <span class="str">"HQ - Bay Wing"</span>, Subtitle = <span class="str">"Headquarters"</span> },
+    <span class="kw">new</span>() { Id = <span class="str">"room-garden"</span>, Title = <span class="str">"The Garden"</span>,    Subtitle = <span class="str">"Headquarters"</span> },
+    <span class="kw">new</span>() { Id = <span class="str">"room-war"</span>,    Title = <span class="str">"War Room (B1)"</span>, Subtitle = <span class="str">"Basement"</span> },
 };</pre>
                 </div>
             </div>
