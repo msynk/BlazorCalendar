@@ -10,7 +10,7 @@
             @foreach (var ev in Events)
             {
                 <div class="bfc-agenda-item" @onclick="() => SelectEvent(ev)">
-                    <div class="bfc-agenda-avatar @BlazorFullCalendarHelpers.GetBgColorCss(ev.Color)">
+                    <div class="bfc-agenda-avatar bfc-bg" style="@ColorScheme.GetColorStyle(ev.Color)">
                         @(ev.Attendees.Count > 0 ? ev.Attendees[0].Initials : "")
                     </div>
                     <div class="bfc-agenda-info">
@@ -37,6 +37,7 @@
 @code {
     [CascadingParameter] public BlazorFullCalendarState State { get; set; } = default!;
     [CascadingParameter] public BlazorFullCalendarTexts Texts { get; set; } = default!;
+    [CascadingParameter] public BlazorFullCalendarColorScheme ColorScheme { get; set; } = default!;
     [CascadingParameter(Name = "OnEventClick")] public EventCallback<BlazorFullCalendarEvent> OnEventClick { get; set; }
     [Parameter] public DateTime Date { get; set; }
     [Parameter] public List<BlazorFullCalendarEvent> Events { get; set; } = [];

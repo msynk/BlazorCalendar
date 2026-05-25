@@ -199,7 +199,7 @@
         new("Delete Events", "Remove events with a single click from the details dialog. Immediate UI update."),
         new("Attendees", "Attach people to an event (first name, last name, optional id). Filter the calendar header by attendee, with validation on names."),
         new("Event metadata", "Optional Data payload (any object) for app-specific fields — ideal with templates for icons, rooms, priority badges, and more."),
-        new("Color coding", "Six built-in palettes (Blue through Orange) with light/dark styling. Optionally pass EventColorOptions to control order, which colors appear, and optional subtitles in pickers and filters."),
+        new("Color coding", "Bring your own palette. Each EventColorOptions entry has an Id (matched against BlazorFullCalendarEvent.Color), a Title (display name shown verbatim — e.g. \"SkyBlue\"), and a Value (any CSS color). Pickers, filters, swatches, and badges are derived from a single value per color."),
         new("Multi-Day Events", "Events spanning multiple days render as connected badges across day cells with first/middle/last visual states."),
         new("Form validation", "Required title and description, end-after-start dates, and attendee name rules with inline errors."),
         new("OnChange callback", "Single hook for add, edit, and delete with Kind, optional OldEvent for edits/deletes, and Source (dialog, drag, resize, or delete) so you can sync persistence correctly."),

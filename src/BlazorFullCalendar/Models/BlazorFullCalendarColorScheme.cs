@@ -1,68 +1,103 @@
 ﻿namespace BlazorFullCalendar;
 
 /// <summary>
-/// Resolved color list and helpers for labels. Built from the calendar's <c>EventColorOptions</c> parameter.
+/// Resolved color list and lookup helpers. Built from the calendar's <c>EventColorOptions</c>
+/// parameter (or the built-in <see cref="BlazorFullCalendarColorOption.Defaults"/> palette when
+/// none was supplied). Events reference a color through <see cref="BlazorFullCalendarColorOption.Id"/>.
 /// </summary>
 public sealed class BlazorFullCalendarColorScheme
 {
-    private static readonly IReadOnlyList<BlazorFullCalendarColorOption> DefaultOptions =
-        Enum.GetValues<BlazorFullCalendarEventColor>().Select(c => new BlazorFullCalendarColorOption { Color = c }).ToArray();
+    /// <summary>Id used when an event's <see cref="BlazorFullCalendarEvent.Color"/> is null/empty.</summary>
+    public const string FallbackColorId = "blue";
 
-    private readonly Dictionary<BlazorFullCalendarEventColor, BlazorFullCalendarColorOption> _byColor;
+    /// <summary>Inline style emitted on color-bearing elements (bullets, swatches, chips, blocks).</summary>
+    public const string ColorVariableName = "--bfc-evt-color";
+
+    private readonly Dictionary<string, BlazorFullCalendarColorOption> _byId;
 
     public BlazorFullCalendarColorScheme(IReadOnlyList<BlazorFullCalendarColorOption>? options)
     {
-        var list = options is { Count: > 0 } ? options : DefaultOptions;
+        var list = options is { Count: > 0 } ? options : BlazorFullCalendarColorOption.Defaults;
         Options = list;
-        _byColor = [];
+        _byId = new Dictionary<string, BlazorFullCalendarColorOption>(StringComparer.OrdinalIgnoreCase);
         foreach (var o in list)
         {
-            if (!_byColor.ContainsKey(o.Color))
-                _byColor[o.Color] = o;
+            var id = o.Id?.Trim();
+            if (!string.IsNullOrEmpty(id) && !_byId.ContainsKey(id))
+                _byId[id] = o;
         }
     }
 
-    /// <summary>Configured colors in display order (defaults to every <see cref="BlazorFullCalendarEventColor"/>).</summary>
+    /// <summary>Configured colors in display order.</summary>
     public IReadOnlyList<BlazorFullCalendarColorOption> Options { get; }
 
-    public BlazorFullCalendarColorOption? Find(BlazorFullCalendarEventColor color) =>
-        _byColor.TryGetValue(color, out var o) ? o : null;
-
-    /// <summary>
-    /// Label for dropdowns, filters, agenda headers, and event details: always the localized color name from
-    /// <see cref="BlazorFullCalendarTexts.GetColorLabel"/>, then <see cref="BlazorFullCalendarColorOption.Title"/> when set (after an em dash).
-    /// </summary>
-    public string GetPrimaryLabel(BlazorFullCalendarEventColor color, BlazorFullCalendarTexts texts)
+    /// <summary>Looks up a color option by id (case-insensitive). Returns null when unknown.</summary>
+    public BlazorFullCalendarColorOption? Find(string? colorId)
     {
-        var name = texts.GetColorLabel(color);
-        var t = Find(color)?.Title?.Trim();
-        return string.IsNullOrEmpty(t) ? name : $"{name} - {t}";
+        if (string.IsNullOrWhiteSpace(colorId))
+            return null;
+        return _byId.TryGetValue(colorId.Trim(), out var o) ? o : null;
+    }
+
+    /// <summary>Display label for dropdowns, filters, agenda headers, and event details.</summary>
+    public string GetLabel(string? colorId)
+    {
+        var opt = Find(colorId);
+        if (opt is not null && !string.IsNullOrWhiteSpace(opt.Title))
+            return opt.Title;
+        return colorId ?? string.Empty;
+    }
+
+    /// <summary>CSS color value for the supplied id (falls back to the first configured color).</summary>
+    public string GetCssValue(string? colorId)
+    {
+        var opt = Find(colorId);
+        if (opt is not null && !string.IsNullOrWhiteSpace(opt.Value))
+            return opt.Value;
+        var first = Options.Count > 0 ? Options[0] : null;
+        return first?.Value ?? "#3b82f6";
     }
 
     /// <summary>
-    /// Options shown in add/edit dialog. If the event uses a color not present in <see cref="Options"/>, it is appended so the value stays valid.
+    /// Inline style string that publishes the resolved color value as the
+    /// <see cref="ColorVariableName"/> CSS custom property. Combine with the matching CSS classes
+    /// (e.g. <c>bfc-color</c>, <c>bfc-bg</c>, <c>bfc-bullet</c>) to render the chip surface.
     /// </summary>
-    public IReadOnlyList<BlazorFullCalendarColorOption> GetEditorOptions(BlazorFullCalendarEventColor? editingColor)
+    public string GetColorStyle(string? colorId) =>
+        $"{ColorVariableName}:{GetCssValue(colorId)};";
+
+    /// <summary>
+    /// Options shown in the add/edit dialog. If the event references an id that is not in
+    /// <see cref="Options"/> (for example a color removed at runtime) the missing entry is
+    /// appended so the value remains selectable.
+    /// </summary>
+    public IReadOnlyList<BlazorFullCalendarColorOption> GetEditorOptions(string? editingColorId)
     {
-        if (editingColor is not { } ec || _byColor.ContainsKey(ec))
+        if (string.IsNullOrWhiteSpace(editingColorId) || _byId.ContainsKey(editingColorId.Trim()))
             return Options;
 
         var extra = new List<BlazorFullCalendarColorOption>(Options.Count + 1);
         extra.AddRange(Options);
-        extra.Add(new BlazorFullCalendarColorOption { Color = ec });
+        extra.Add(new BlazorFullCalendarColorOption
+        {
+            Id = editingColorId.Trim(),
+            Title = editingColorId.Trim(),
+            Value = GetCssValue(editingColorId)
+        });
         return extra;
     }
 
-    /// <summary>Sort key for agenda grouping: configured order first, then any other enum value.</summary>
-    public int GetSortOrder(BlazorFullCalendarEventColor color)
+    /// <summary>Sort key for agenda grouping — configured order first, then unknown ids by name.</summary>
+    public int GetSortOrder(string? colorId)
     {
+        if (string.IsNullOrWhiteSpace(colorId))
+            return int.MaxValue;
+        var trimmed = colorId.Trim();
         for (var i = 0; i < Options.Count; i++)
         {
-            if (Options[i].Color == color)
+            if (string.Equals(Options[i].Id, trimmed, StringComparison.OrdinalIgnoreCase))
                 return i;
         }
-
-        return 1000 + (int)color;
+        return 1000 + StringComparer.OrdinalIgnoreCase.GetHashCode(trimmed);
     }
 }
-

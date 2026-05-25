@@ -40,7 +40,7 @@
                 <select @bind="_color" aria-label="@Texts.EventColorAriaLabel">
                     @foreach (var opt in ColorScheme.GetEditorOptions(_isEditing ? _color : null))
                     {
-                        <option value="@opt.Color">@ColorScheme.GetPrimaryLabel(opt.Color, Texts)</option>
+                        <option value="@opt.Id">@opt.Title</option>
                     }
                 </select>
             </div>
@@ -108,7 +108,7 @@
     private string _description = "";
     private DateTime _startDate;
     private DateTime _endDate;
-    private BlazorFullCalendarEventColor _color;
+    private string _color = BlazorFullCalendarColorScheme.FallbackColorId;
     private List<BlazorFullCalendarAttendee> _attendees = [];
     private string _newFirstName = "";
     private string _newLastName = "";
@@ -118,7 +118,9 @@
     protected override void OnInitialized()
     {
         _isEditing = ExistingEvent != null;
-        var defaultColor = ColorScheme.Options[0].Color;
+        var defaultColor = ColorScheme.Options.Count > 0
+            ? ColorScheme.Options[0].Id
+            : BlazorFullCalendarColorScheme.FallbackColorId;
 
         if (_isEditing)
         {
@@ -126,7 +128,7 @@
             _description = ExistingEvent.Description;
             _startDate = ExistingEvent.StartDate;
             _endDate = ExistingEvent.EndDate;
-            _color = ExistingEvent.Color;
+            _color = string.IsNullOrWhiteSpace(ExistingEvent.Color) ? defaultColor : ExistingEvent.Color;
             _attendees = [.. ExistingEvent.Attendees];
         }
         else

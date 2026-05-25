@@ -36,7 +36,7 @@
         agendaGroups = monthEvents
             .GroupBy(e => e.Color)
             .OrderBy(g => ColorScheme.GetSortOrder(g.Key))
-            .Select(g => (DateKey: (string?)null, GroupTitle: ColorScheme.GetPrimaryLabel(g.Key, Texts), Items: g.ToList()))
+            .Select(g => (DateKey: (string?)null, GroupTitle: ColorScheme.GetLabel(g.Key), Items: g.ToList()))
             .ToList();
     }
 }
@@ -59,7 +59,7 @@
                 @foreach (var ev in items)
                 {
                     <div class="bfc-agenda-item" data-agenda-date="@ev.StartDate.ToString("yyyy-MM-dd")" @onclick="() => ShowDetails(ev)">
-                        <div class="bfc-agenda-avatar @BlazorFullCalendarHelpers.GetBgColorCss(ev.Color)">
+                        <div class="bfc-agenda-avatar bfc-bg" style="@ColorScheme.GetColorStyle(ev.Color)">
                             @(ev.Attendees.Count > 0 ? ev.Attendees[0].Initials : "")
                         </div>
                         <div class="bfc-agenda-info">

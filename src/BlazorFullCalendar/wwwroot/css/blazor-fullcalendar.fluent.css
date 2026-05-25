@@ -52,144 +52,18 @@
     --bfc-resize-handle-line: #479ef5;
 }
 
-/* Event chips: slightly softer contrast in Fluent light mode */
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-blue {
-    background: #ebf3fc;
-    color: #115ea3;
-    border-color: #b4d6fa;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-green {
-    background: #dff6dd;
-    color: #107c10;
-    border-color: #a7e0a2;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-red {
-    background: #fde7e9;
-    color: #a4262c;
-    border-color: #f1aeb5;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-yellow {
-    background: #fff4ce;
-    color: #8f6f00;
-    border-color: #ffe69d;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-purple {
-    background: #f3f2ff;
-    color: #5c2e91;
-    border-color: #d7c8f4;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color-orange {
-    background: #fff8f0;
-    color: #ca5010;
-    border-color: #ffd6b0;
+/* Event chips: slightly softer contrast in Fluent light mode by mixing the per-event colour
+   (--bfc-evt-color, set inline from BlazorFullCalendarColorOption.Value) with the surface. */
+.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-color {
+    background: color-mix(in srgb, var(--bfc-evt-color, #0f6cbd) 14%, var(--bfc-bg, #ffffff));
+    color: color-mix(in srgb, var(--bfc-evt-color, #0f6cbd) 78%, #1f2937);
+    border-color: color-mix(in srgb, var(--bfc-evt-color, #0f6cbd) 28%, var(--bfc-bg, #ffffff));
 }
 
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-blue {
-    background: #1a2332;
-    color: #a8d3ff;
-    border-color: #004578;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-green {
-    background: #1c2b1d;
-    color: #9fd89f;
-    border-color: #054f16;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-red {
-    background: #3a1f1f;
-    color: #f5a2a7;
-    border-color: #751d1f;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-yellow {
-    background: #3b2f0a;
-    color: #ffe69d;
-    border-color: #6a4b16;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-purple {
-    background: #2d1f3d;
-    color: #d7c8f4;
-    border-color: #4c2a85;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color-orange {
-    background: #3b2415;
-    color: #ffc982;
-    border-color: #8a4b12;
-}
-
-/* Solid swatches used in filters / bullets */
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-blue {
-    background: #0f6cbd;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-green {
-    background: #107c10;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-red {
-    background: #c50f1f;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-yellow {
-    background: #ca8e00;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-purple {
-    background: #5c2e91;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-bg-orange {
-    background: #ca5010;
-}
-
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-blue {
-    background: #479ef5;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-green {
-    background: #54b054;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-red {
-    background: #f1707b;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-yellow {
-    background: #fce100;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-purple {
-    background: #c239b3;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-bg-orange {
-    background: #f7630c;
-}
-
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-blue {
-    background: #0f6cbd;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-green {
-    background: #107c10;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-red {
-    background: #c50f1f;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-yellow {
-    background: #ca8e00;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-purple {
-    background: #5c2e91;
-}
-.bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-swatch-orange {
-    background: #ca5010;
-}
-
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-blue {
-    background: #479ef5;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-green {
-    background: #54b054;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-red {
-    background: #f1707b;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-yellow {
-    background: #fce100;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-purple {
-    background: #c239b3;
-}
-.bfc-root.bfc-theme-fluent.bfc-dark .bfc-swatch-orange {
-    background: #f7630c;
+.bfc-root.bfc-theme-fluent.bfc-dark .bfc-color {
+    background: color-mix(in srgb, var(--bfc-evt-color, #479ef5) 26%, #0b0f19);
+    color: color-mix(in srgb, var(--bfc-evt-color, #479ef5) 70%, #f9fafb);
+    border-color: color-mix(in srgb, var(--bfc-evt-color, #479ef5) 48%, #0b0f19);
 }
 
 .bfc-root.bfc-theme-fluent:not(.bfc-dark) .bfc-week-mobile-warning {

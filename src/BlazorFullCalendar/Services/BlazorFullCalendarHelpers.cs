@@ -640,28 +640,6 @@ public static class BlazorFullCalendarHelpers
         return "";
     }
 
-    public static string GetColorCss(BlazorFullCalendarEventColor color) => color switch
-    {
-        BlazorFullCalendarEventColor.Blue => "bfc-color-blue",
-        BlazorFullCalendarEventColor.Green => "bfc-color-green",
-        BlazorFullCalendarEventColor.Red => "bfc-color-red",
-        BlazorFullCalendarEventColor.Yellow => "bfc-color-yellow",
-        BlazorFullCalendarEventColor.Purple => "bfc-color-purple",
-        BlazorFullCalendarEventColor.Orange => "bfc-color-orange",
-        _ => "bfc-color-blue"
-    };
-
-    public static string GetBgColorCss(BlazorFullCalendarEventColor color) => color switch
-    {
-        BlazorFullCalendarEventColor.Blue => "bfc-bg-blue",
-        BlazorFullCalendarEventColor.Green => "bfc-bg-green",
-        BlazorFullCalendarEventColor.Red => "bfc-bg-red",
-        BlazorFullCalendarEventColor.Yellow => "bfc-bg-yellow",
-        BlazorFullCalendarEventColor.Purple => "bfc-bg-purple",
-        BlazorFullCalendarEventColor.Orange => "bfc-bg-orange",
-        _ => "bfc-bg-blue"
-    };
-
     public static double GetCurrentTimeLineTopPx()
     {
         double minutes = DateTime.Now.TimeOfDay.TotalMinutes;

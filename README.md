@@ -16,6 +16,7 @@ A feature-rich, interactive calendar component for Blazor applications. Built wi
 - **Drag & Drop**: Move events between time slots and dates with native HTML5 drag-and-drop
 - **Resize**: Drag the top or bottom handle of any day/week event block to adjust its start or end time
 - **Multi-User Support**: Filter events by attendee or color with avatar initials and color badges
+- **Fully customizable colors**: Bring your own palette through `EventColorOptions` — each entry has its own `Id`, `Title` (the full name shown verbatim, like `"SkyBlue"`), and `Value` (any CSS color). The component derives badges, swatches, and bullets from that single value
 - **External Filter UI (`HideFilters`)**: Hide the built-in color and attendee dropdowns and supply your own filter controls with pre-filtered events
 - **Text Customization**: Override UI labels, button text, placeholders, aria labels, and validation messages with `BlazorFullCalendarTexts`
 - **Customizable**: Dark mode, 12/24-hour format, dot vs colored badges, configurable start hour, agenda grouping, and hideable settings/filters
@@ -94,7 +95,7 @@ If you prefer to control asset loading yourself — for example to set a specifi
             Description = "Weekly sync",
             StartDate = DateTime.Today.AddHours(10),
             EndDate = DateTime.Today.AddHours(11),
-            Color = BlazorFullCalendarEventColor.Blue
+            Color = "blue"
         }
     };
 
@@ -158,7 +159,7 @@ The Timeline **mode** is a top-level layout that sits alongside the default **Ev
             StartDate = DateTime.Today.AddHours(10),
             EndDate = DateTime.Today.AddHours(11),
             Resource = "room-bay",
-            Color = BlazorFullCalendarEventColor.Purple
+            Color = "purple"
         }
     ];
 
@@ -354,7 +355,7 @@ Replace the default card content inside any view by supplying a per-view `Render
 | `CultureName` | `string?` | `null` | Culture name shortcut (e.g. `"fa-IR"`, `"ar-SA"`, `"fr-FR"`). Takes precedence over `Culture` when both are supplied |
 | `Texts` | `BlazorFullCalendarTexts` | `new()` | Custom UI strings for labels, placeholders, action buttons, aria labels, and validation messages |
 | `Theme` | `BlazorFullCalendarTheme` | `Default` | Visual theme — `Default` or `Fluent` (WinUI-style). Dark mode is supported for both |
-| `EventColorOptions` | `IReadOnlyList<BlazorFullCalendarColorOption>?` | `null` | Ordered list of event colors shown in pickers and filters. When `null` all colors are shown in enum order |
+| `EventColorOptions` | `IReadOnlyList<BlazorFullCalendarColorOption>?` | `null` | Ordered list of event colors shown in pickers, filters, agenda headers, badges, and bullets. Each entry has `Id` (matched against `BlazorFullCalendarEvent.Color`), `Title` (display label shown verbatim, e.g. `"SkyBlue"`), and `Value` (any CSS color). Defaults to `BlazorFullCalendarColorOption.Defaults` (the six original palettes) when `null` |
 | `Resources` | `IReadOnlyList<BlazorFullCalendarResource>?` | `null` | Resources displayed as rows in Timeline mode. Each event's `Resource` property is matched against the resource `Id`. The Timeline mode tab is hidden when `null` or empty |
 | `InitialMode` | `BlazorFullCalendarMode?` | `null` (Event) | Initial layout mode. `Event` shows day/week/month/year/agenda views. `Timeline` shows resources × time grid (day/week/month sub-views) and requires `Resources` to be non-empty |
 | `OnChange` | `EventCallback<BlazorFullCalendarChangeEventArgs>` | — | Raised when a user adds, edits, or deletes an event (`Kind`: `Add`, `Edit`, `Delete`; `Source`: `Dialog`, `Drag`, `Resize`, `Delete`) |
@@ -384,7 +385,7 @@ public class BlazorFullCalendarEvent
     public string Description { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public BlazorFullCalendarEventColor Color { get; set; }
+    public string Color { get; set; }                    // matches a BlazorFullCalendarColorOption.Id
     public List<BlazorFullCalendarAttendee> Attendees { get; set; }
 
     /// <summary>
@@ -428,9 +429,33 @@ public class BlazorFullCalendarAttendee
 }
 ```
 
-### BlazorFullCalendarEventColor
+### BlazorFullCalendarColorOption
 
-Available values: `Blue`, `Green`, `Red`, `Yellow`, `Purple`, `Orange`
+```csharp
+public sealed class BlazorFullCalendarColorOption
+{
+    public string Id { get; set; }      // case-insensitive id matched against BlazorFullCalendarEvent.Color
+    public string Title { get; set; }   // display label shown verbatim in pickers, filters, agenda headers
+    public string Value { get; set; }   // any CSS color: "#3b82f6", "rgb(...)", "skyblue", etc.
+
+    // Six default options (Ids: "blue", "green", "red", "yellow", "purple", "orange").
+    public static IReadOnlyList<BlazorFullCalendarColorOption> Defaults { get; }
+}
+```
+
+When `EventColorOptions` is omitted the component falls back to `BlazorFullCalendarColorOption.Defaults`. Supply your own list to fully control which colors appear, in what order, what label is shown, and the actual CSS color used in swatches and badges:
+
+```csharp
+private static readonly IReadOnlyList<BlazorFullCalendarColorOption> Palette =
+[
+    new() { Id = "sky",   Title = "SkyBlue",  Value = "skyblue" },
+    new() { Id = "moss",  Title = "Moss",     Value = "#5b8a3a" },
+    new() { Id = "rose",  Title = "Rose",     Value = "#e11d48" },
+];
+
+// Then on each event:
+new BlazorFullCalendarEvent { /* ... */ Color = "sky" };
+```
 
 ### BlazorFullCalendarChangeEventArgs
 

@@ -11,7 +11,7 @@ public class BlazorFullCalendarState
     public DateTime SelectedDate { get; private set; } = DateTime.Today;
     public BlazorFullCalendarView View { get; private set; } = BlazorFullCalendarView.Month;
     public BlazorFullCalendarMode Mode { get; private set; } = BlazorFullCalendarMode.Event;
-    public List<BlazorFullCalendarEventColor> SelectedColors { get; private set; } = [];
+    public List<string> SelectedColors { get; private set; } = [];
 
     /// <summary>When set, only events that include this attendee (by <see cref="BlazorFullCalendarHelpers.AttendeeFilterKey"/>) are shown.</summary>
     public string? SelectedAttendeeKey { get; private set; }
@@ -247,20 +247,25 @@ public class BlazorFullCalendarState
         UpdateUI();
     }
 
-    public void FilterByColor(BlazorFullCalendarEventColor color)
+    public void FilterByColor(string colorId)
     {
-        if (SelectedColors.Contains(color))
-            SelectedColors.Remove(color);
+        if (string.IsNullOrWhiteSpace(colorId))
+            return;
+
+        var trimmed = colorId.Trim();
+        var existing = SelectedColors.FindIndex(c => string.Equals(c, trimmed, StringComparison.OrdinalIgnoreCase));
+        if (existing >= 0)
+            SelectedColors.RemoveAt(existing);
         else
-            SelectedColors.Add(color);
+            SelectedColors.Add(trimmed);
         UpdateUI();
     }
 
-    public void SetColorFilter(BlazorFullCalendarEventColor? color)
+    public void SetColorFilter(string? colorId)
     {
         SelectedColors.Clear();
-        if (color.HasValue)
-            SelectedColors.Add(color.Value);
+        if (!string.IsNullOrWhiteSpace(colorId))
+            SelectedColors.Add(colorId.Trim());
 
         UpdateUI();
     }
@@ -319,7 +324,7 @@ public class BlazorFullCalendarState
         var result = _allEvents.AsEnumerable();
 
         if (SelectedColors.Count > 0)
-            result = result.Where(e => SelectedColors.Contains(e.Color));
+            result = result.Where(e => SelectedColors.Any(c => string.Equals(c, e.Color, StringComparison.OrdinalIgnoreCase)));
 
         if (SelectedAttendeeKey is not null)
             result = result.Where(e => e.Attendees.Any(a => BlazorFullCalendarHelpers.AttendeeFilterKey(a) == SelectedAttendeeKey));

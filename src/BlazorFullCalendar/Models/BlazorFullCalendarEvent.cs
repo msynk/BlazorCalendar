@@ -7,7 +7,12 @@ public class BlazorFullCalendarEvent
     public string Description { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public BlazorFullCalendarEventColor Color { get; set; } = BlazorFullCalendarEventColor.Blue;
+    /// <summary>
+    /// Identifier of the color (matches a <see cref="BlazorFullCalendarColorOption.Id"/> from the
+    /// calendar's configured palette). Defaults to <see cref="BlazorFullCalendarColorScheme.FallbackColorId"/>
+    /// so that out-of-the-box rendering keeps working with the built-in palette.
+    /// </summary>
+    public string Color { get; set; } = BlazorFullCalendarColorScheme.FallbackColorId;
     public List<BlazorFullCalendarAttendee> Attendees { get; set; } = [];
 
     /// <summary>

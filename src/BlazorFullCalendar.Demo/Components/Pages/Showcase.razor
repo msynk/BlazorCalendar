@@ -290,9 +290,9 @@
                     <label style="font-size:12px;font-weight:600;color:var(--demo-text-secondary);">Color</label>
                     <select @bind="_clickedEvent.Color"
                             style="padding:8px 12px;border:1px solid var(--demo-border);border-radius:8px;font-size:14px;outline:none;background:var(--demo-bg);color:var(--demo-text);cursor:pointer;">
-                        @foreach (var c in Enum.GetValues<BlazorFullCalendarEventColor>())
+                        @foreach (var c in BlazorFullCalendarColorOption.Defaults)
                         {
-                            <option value="@c">@c</option>
+                            <option value="@c.Id">@c.Title</option>
                         }
                     </select>
                 </div>
@@ -356,9 +356,9 @@
                     <label style="font-size:12px;font-weight:600;color:var(--demo-text-secondary);">Color</label>
                     <select @bind="_draftEvent.Color"
                             style="padding:8px 12px;border:1px solid var(--demo-border);border-radius:8px;font-size:14px;outline:none;background:var(--demo-bg);color:var(--demo-text);cursor:pointer;">
-                        @foreach (var c in Enum.GetValues<BlazorFullCalendarEventColor>())
+                        @foreach (var c in BlazorFullCalendarColorOption.Defaults)
                         {
-                            <option value="@c">@c</option>
+                            <option value="@c.Id">@c.Title</option>
                         }
                     </select>
                 </div>
@@ -566,9 +566,9 @@
             <select @onchange="OnFilterColorChange"
                     style="padding:8px 12px;border:1px solid var(--demo-border);border-radius:8px;font-size:13px;outline:none;background:var(--demo-bg);color:var(--demo-text);cursor:pointer;">
                 <option value="">All Colors</option>
-                @foreach (var c in Enum.GetValues<BlazorFullCalendarEventColor>())
+                @foreach (var c in BlazorFullCalendarColorOption.Defaults)
                 {
-                    <option value="@c">@c</option>
+                    <option value="@c.Id">@c.Title</option>
                 }
             </select>
         </div>
@@ -585,7 +585,7 @@
             </select>
         </div>
 
-        @if (_filterSearchText.Length > 0 || _filterSelectedColor.HasValue || !string.IsNullOrEmpty(_filterSelectedAttendeeId))
+        @if (_filterSearchText.Length > 0 || !string.IsNullOrEmpty(_filterSelectedColor) || !string.IsNullOrEmpty(_filterSelectedAttendeeId))
         {
             <button type="button" class="demo-btn demo-btn-secondary" style="padding:8px 16px;font-size:12px;white-space:nowrap;" @onclick="ClearCustomFilters">
                 Clear Filters
@@ -593,7 +593,7 @@
         }
     </div>
 
-    @if (_filterSearchText.Length > 0 || _filterSelectedColor.HasValue || !string.IsNullOrEmpty(_filterSelectedAttendeeId))
+    @if (_filterSearchText.Length > 0 || !string.IsNullOrEmpty(_filterSelectedColor) || !string.IsNullOrEmpty(_filterSelectedAttendeeId))
     {
         <div style="padding:0 24px 12px;">
             <span style="font-size:12px;color:var(--demo-text-secondary);">
@@ -635,16 +635,16 @@
         var today = DateTime.Today;
         return
         [
-            new() { Id = "t1", Title = "Sprint Review",        Description = "Demo features to stakeholders.",     StartDate = today.AddHours(9),              EndDate = today.AddHours(10),            Color = BlazorFullCalendarEventColor.Blue,   Attendees = [new() { FirstName = "Alice", LastName = "J", Id = "1" }], Data = new EventMeta("🎯", "High", "Room A1") },
-            new() { Id = "t2", Title = "Design Sync",          Description = "Review new dashboard mockups.",       StartDate = today.AddHours(10).AddMinutes(30), EndDate = today.AddHours(11).AddMinutes(30), Color = BlazorFullCalendarEventColor.Purple, Attendees = [new() { FirstName = "Bob", LastName = "S", Id = "2" }], Data = new EventMeta("🎨", null, "Studio B") },
-            new() { Id = "t3", Title = "Prod Incident Review", Description = "Postmortem for last week's outage.", StartDate = today.AddHours(13),             EndDate = today.AddHours(14),            Color = BlazorFullCalendarEventColor.Red,    Attendees = [new() { FirstName = "Carol", LastName = "D", Id = "3" }, new() { FirstName = "David", LastName = "L", Id = "4" }], Data = new EventMeta("🔥", "High", null) },
-            new() { Id = "t4", Title = "Lunch & Learn",        Description = "Intro to Blazor SSR.",               StartDate = today.AddHours(12),             EndDate = today.AddHours(13),            Color = BlazorFullCalendarEventColor.Green,  Attendees = [], Data = new EventMeta("📚", null, "Cafeteria") },
-            new() { Id = "t5", Title = "Focus Block",          Description = "Deep work - no interruptions.",       StartDate = today.AddHours(14).AddMinutes(30), EndDate = today.AddHours(16),            Color = BlazorFullCalendarEventColor.Yellow, Attendees = [], Data = new EventMeta("🧘", null, null) },
-            new() { Id = "t6", Title = "Client Call",          Description = "Quarterly business review.",          StartDate = today.AddHours(16),             EndDate = today.AddHours(17),            Color = BlazorFullCalendarEventColor.Orange, Attendees = [new() { FirstName = "Eva", LastName = "M", Id = "5" }], Data = new EventMeta("📞", "High", "Board Room") },
-            new() { Id = "t7", Title = "Team Offsite",         Description = "Strategy planning at the lake house.",StartDate = today.AddDays(2).AddHours(9),   EndDate = today.AddDays(4).AddHours(17), Color = BlazorFullCalendarEventColor.Purple, Attendees = [new() { FirstName = "Alice", LastName = "J", Id = "1" }, new() { FirstName = "Bob", LastName = "S", Id = "2" }], Data = new EventMeta("🏕️", null, null) },
-            new() { Id = "t8", Title = "Release Day",          Description = "v3.0 go-live.",                       StartDate = today.AddDays(5).AddHours(10),  EndDate = today.AddDays(5).AddHours(12), Color = BlazorFullCalendarEventColor.Green,  Attendees = [], Data = new EventMeta("🚀", "High", null) },
-            new() { Id = "t9", Title = "Workshop",             Description = "Component architecture deep dive.",   StartDate = today.AddDays(1).AddHours(10),  EndDate = today.AddDays(1).AddHours(12), Color = BlazorFullCalendarEventColor.Blue,   Attendees = [new() { FirstName = "Frank", LastName = "C", Id = "6" }], Data = new EventMeta("🛠️", null, "Lab 3") },
-            new() { Id = "t10", Title = "All Hands",           Description = "Company-wide monthly meeting.",       StartDate = today.AddDays(1).AddHours(14),  EndDate = today.AddDays(1).AddHours(15), Color = BlazorFullCalendarEventColor.Orange, Attendees = [], Data = new EventMeta("📣", null, "Main Hall") },
+            new() { Id = "t1", Title = "Sprint Review",        Description = "Demo features to stakeholders.",     StartDate = today.AddHours(9),              EndDate = today.AddHours(10),            Color = "blue",   Attendees = [new() { FirstName = "Alice", LastName = "J", Id = "1" }], Data = new EventMeta("🎯", "High", "Room A1") },
+            new() { Id = "t2", Title = "Design Sync",          Description = "Review new dashboard mockups.",       StartDate = today.AddHours(10).AddMinutes(30), EndDate = today.AddHours(11).AddMinutes(30), Color = "purple", Attendees = [new() { FirstName = "Bob", LastName = "S", Id = "2" }], Data = new EventMeta("🎨", null, "Studio B") },
+            new() { Id = "t3", Title = "Prod Incident Review", Description = "Postmortem for last week's outage.", StartDate = today.AddHours(13),             EndDate = today.AddHours(14),            Color = "red",    Attendees = [new() { FirstName = "Carol", LastName = "D", Id = "3" }, new() { FirstName = "David", LastName = "L", Id = "4" }], Data = new EventMeta("🔥", "High", null) },
+            new() { Id = "t4", Title = "Lunch & Learn",        Description = "Intro to Blazor SSR.",               StartDate = today.AddHours(12),             EndDate = today.AddHours(13),            Color = "green",  Attendees = [], Data = new EventMeta("📚", null, "Cafeteria") },
+            new() { Id = "t5", Title = "Focus Block",          Description = "Deep work - no interruptions.",       StartDate = today.AddHours(14).AddMinutes(30), EndDate = today.AddHours(16),            Color = "yellow", Attendees = [], Data = new EventMeta("🧘", null, null) },
+            new() { Id = "t6", Title = "Client Call",          Description = "Quarterly business review.",          StartDate = today.AddHours(16),             EndDate = today.AddHours(17),            Color = "orange", Attendees = [new() { FirstName = "Eva", LastName = "M", Id = "5" }], Data = new EventMeta("📞", "High", "Board Room") },
+            new() { Id = "t7", Title = "Team Offsite",         Description = "Strategy planning at the lake house.",StartDate = today.AddDays(2).AddHours(9),   EndDate = today.AddDays(4).AddHours(17), Color = "purple", Attendees = [new() { FirstName = "Alice", LastName = "J", Id = "1" }, new() { FirstName = "Bob", LastName = "S", Id = "2" }], Data = new EventMeta("🏕️", null, null) },
+            new() { Id = "t8", Title = "Release Day",          Description = "v3.0 go-live.",                       StartDate = today.AddDays(5).AddHours(10),  EndDate = today.AddDays(5).AddHours(12), Color = "green",  Attendees = [], Data = new EventMeta("🚀", "High", null) },
+            new() { Id = "t9", Title = "Workshop",             Description = "Component architecture deep dive.",   StartDate = today.AddDays(1).AddHours(10),  EndDate = today.AddDays(1).AddHours(12), Color = "blue",   Attendees = [new() { FirstName = "Frank", LastName = "C", Id = "6" }], Data = new EventMeta("🛠️", null, "Lab 3") },
+            new() { Id = "t10", Title = "All Hands",           Description = "Company-wide monthly meeting.",       StartDate = today.AddDays(1).AddHours(14),  EndDate = today.AddDays(1).AddHours(15), Color = "orange", Attendees = [], Data = new EventMeta("📣", null, "Main Hall") },
         ];
     }
 
@@ -798,7 +798,7 @@
 
 
     private string _filterSearchText = string.Empty;
-    private BlazorFullCalendarEventColor? _filterSelectedColor;
+    private string? _filterSelectedColor;
     private string? _filterSelectedAttendeeId;
     private List<BlazorFullCalendarAttendee> _filterDistinctAttendees = [];
 
@@ -823,7 +823,7 @@
     private void OnFilterColorChange(ChangeEventArgs e)
     {
         var val = e.Value?.ToString();
-        _filterSelectedColor = !string.IsNullOrWhiteSpace(val) && Enum.TryParse<BlazorFullCalendarEventColor>(val, out var c) ? c : null;
+        _filterSelectedColor = string.IsNullOrWhiteSpace(val) ? null : val;
         ApplyCustomFilters();
     }
 
@@ -852,8 +852,8 @@
                 e.Description.Contains(_filterSearchText, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (_filterSelectedColor.HasValue)
-            result = result.Where(e => e.Color == _filterSelectedColor.Value);
+        if (_filterSelectedColor is { Length: > 0 } colorId)
+            result = result.Where(e => string.Equals(e.Color, colorId, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrEmpty(_filterSelectedAttendeeId))
             result = result.Where(e => e.Attendees.Any(a => a.Id == _filterSelectedAttendeeId));

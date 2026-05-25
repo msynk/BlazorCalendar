@@ -90,13 +90,6 @@ public class BlazorFullCalendarTexts
     public string NoResourceOption { get; set; } = "(none)";
     public string NoResourcesMessage { get; set; } = "No resources to display.";
 
-    public string ColorBlue { get; set; } = "Blue";
-    public string ColorGreen { get; set; } = "Green";
-    public string ColorRed { get; set; } = "Red";
-    public string ColorYellow { get; set; } = "Yellow";
-    public string ColorPurple { get; set; } = "Purple";
-    public string ColorOrange { get; set; } = "Orange";
-
     public string GetViewLabel(BlazorFullCalendarView view) => view switch
     {
         BlazorFullCalendarView.Day => ViewDay,
@@ -112,17 +105,6 @@ public class BlazorFullCalendarTexts
         BlazorFullCalendarMode.Event => ModeEvent,
         BlazorFullCalendarMode.Timeline => ModeTimeline,
         _ => mode.ToString()
-    };
-
-    public string GetColorLabel(BlazorFullCalendarEventColor color) => color switch
-    {
-        BlazorFullCalendarEventColor.Blue => ColorBlue,
-        BlazorFullCalendarEventColor.Green => ColorGreen,
-        BlazorFullCalendarEventColor.Red => ColorRed,
-        BlazorFullCalendarEventColor.Yellow => ColorYellow,
-        BlazorFullCalendarEventColor.Purple => ColorPurple,
-        BlazorFullCalendarEventColor.Orange => ColorOrange,
-        _ => color.ToString()
     };
 }
 

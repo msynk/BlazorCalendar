@@ -326,36 +326,33 @@
     height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
+    background: var(--bfc-evt-color, #3b82f6);
 }
 
-/* ===== Color Classes ===== */
-.bfc-color-blue { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
-.bfc-color-green { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
-.bfc-color-red { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
-.bfc-color-yellow { background: #fef9c3; color: #a16207; border-color: #fef08a; }
-.bfc-color-purple { background: #f3e8ff; color: #7e22ce; border-color: #e9d5ff; }
-.bfc-color-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+/* ===== Color Classes =====
+   Colors are driven by the per-event CSS custom property --bfc-evt-color, set inline by the
+   component from BlazorFullCalendarColorOption.Value. The classes derive a soft chip surface
+   (bfc-color) and a solid swatch (bfc-bg) from that single value using color-mix(), so any CSS
+   color works without authoring extra rules. */
+.bfc-color {
+    background: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 18%, var(--bfc-bg, #ffffff));
+    color: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 75%, #1f2937);
+    border-color: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 32%, var(--bfc-bg, #ffffff));
+}
 
-.bfc-dark .bfc-color-blue { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
-.bfc-dark .bfc-color-green { background: #14532d; color: #86efac; border-color: #166534; }
-.bfc-dark .bfc-color-red { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
-.bfc-dark .bfc-color-yellow { background: #422006; color: #fde047; border-color: #713f12; }
-.bfc-dark .bfc-color-purple { background: #3b0764; color: #d8b4fe; border-color: #581c87; }
-.bfc-dark .bfc-color-orange { background: #431407; color: #fdba74; border-color: #7c2d12; }
+.bfc-dark .bfc-color {
+    background: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 28%, #0b0f19);
+    color: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 72%, #f9fafb);
+    border-color: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 52%, #0b0f19);
+}
 
-.bfc-bg-blue { background: #3b82f6; } .bfc-dark .bfc-bg-blue { background: #2563eb; }
-.bfc-bg-green { background: #22c55e; } .bfc-dark .bfc-bg-green { background: #16a34a; }
-.bfc-bg-red { background: #ef4444; } .bfc-dark .bfc-bg-red { background: #dc2626; }
-.bfc-bg-yellow { background: #eab308; } .bfc-dark .bfc-bg-yellow { background: #ca8a04; }
-.bfc-bg-purple { background: #a855f7; } .bfc-dark .bfc-bg-purple { background: #9333ea; }
-.bfc-bg-orange { background: #f97316; } .bfc-dark .bfc-bg-orange { background: #ea580c; }
+.bfc-bg {
+    background: var(--bfc-evt-color, #3b82f6);
+}
 
-.bfc-bullet.bfc-bg-blue { background: #3b82f6; }
-.bfc-bullet.bfc-bg-green { background: #22c55e; }
-.bfc-bullet.bfc-bg-red { background: #ef4444; }
-.bfc-bullet.bfc-bg-yellow { background: #eab308; }
-.bfc-bullet.bfc-bg-purple { background: #a855f7; }
-.bfc-bullet.bfc-bg-orange { background: #f97316; }
+.bfc-dark .bfc-bg {
+    background: color-mix(in srgb, var(--bfc-evt-color, #3b82f6) 88%, #000000);
+}
 
 /* Dot-variant badge (neutral background, colored dot) */
 .bfc-event-badge.dot-variant {
@@ -1155,16 +1152,10 @@
     border: 2px solid transparent;
     cursor: pointer;
     transition: transform 0.1s, border-color 0.1s;
+    background: var(--bfc-evt-color, #3b82f6);
 }
 .bfc-color-swatch:hover { transform: scale(1.1); }
 .bfc-color-swatch.selected { border-color: var(--bfc-text); transform: scale(1.15); }
-
-.bfc-swatch-blue { background: #3b82f6; }
-.bfc-swatch-green { background: #22c55e; }
-.bfc-swatch-red { background: #ef4444; }
-.bfc-swatch-yellow { background: #eab308; }
-.bfc-swatch-purple { background: #a855f7; }
-.bfc-swatch-orange { background: #f97316; }
 
 /* ===== Attendee Chips ===== */
 .bfc-attendees-chips {

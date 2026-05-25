@@ -8,12 +8,13 @@
     var durationMin = (displayEnd - displayStart).TotalMinutes;
     var heightPx = (durationMin / 60.0) * BlazorFullCalendarHelpers.HourHeightPx;
     var isDotVariant = State.BadgeVariant == BlazorFullCalendarBadgeVariant.Dot;
-    var colorClass = isDotVariant ? "dot-variant" : BlazorFullCalendarHelpers.GetColorCss(Event.Color);
+    var colorClass = isDotVariant ? "dot-variant" : "bfc-color";
+    var colorStyleVar = ColorScheme.GetColorStyle(Event.Color);
     double translateYPx = 0;
     if (_isResizing && string.Equals(_resizeDirection, "top", StringComparison.Ordinal) && _resizeBaseEvent != null && _previewStart.HasValue)
         translateYPx = (displayStart - _resizeBaseEvent.StartDate).TotalMinutes / 60.0 * BlazorFullCalendarHelpers.HourHeightPx;
     var inv = System.Globalization.CultureInfo.InvariantCulture;
-    var blockStyle = $"height:{heightPx.ToString("F0", inv)}px;transform:translateY({translateYPx.ToString("F2", inv)}px);";
+    var blockStyle = $"{colorStyleVar}height:{heightPx.ToString("F0", inv)}px;transform:translateY({translateYPx.ToString("F2", inv)}px);";
     var resizeClasses = "";
     if (_isResizing)
     {
@@ -77,6 +78,7 @@
 @code {
     [CascadingParameter] public BlazorFullCalendarState State { get; set; } = default!;
     [CascadingParameter] public BlazorFullCalendarTexts Texts { get; set; } = default!;
+    [CascadingParameter] public BlazorFullCalendarColorScheme ColorScheme { get; set; } = default!;
     [CascadingParameter] public BlazorFullCalendarChangeNotifier Notifier { get; set; } = default!;
     [Parameter] public BlazorFullCalendarEvent Event { get; set; } = default!;
     [Parameter] public EventCallback<BlazorFullCalendarEvent> OnSelected { get; set; }

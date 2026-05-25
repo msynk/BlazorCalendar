@@ -72,9 +72,12 @@
     [Parameter] public BlazorFullCalendarTheme Theme { get; set; } = BlazorFullCalendarTheme.Default;
 
     /// <summary>
-    /// Optional ordered list of event colors for pickers and filters. Labels are always the localized color name
-    /// from <see cref="BlazorFullCalendarTexts"/>; <see cref="BlazorFullCalendarColorOption.Title"/> is optional text after it (em dash).
-    /// When null or empty, all <see cref="BlazorFullCalendarEventColor"/> values are used in enum order.
+    /// Ordered list of event colors shown in pickers, filters, agenda headers, badges, and bullets.
+    /// Each entry has its own <see cref="BlazorFullCalendarColorOption.Id"/> (matched against
+    /// <see cref="BlazorFullCalendarEvent.Color"/>), <see cref="BlazorFullCalendarColorOption.Title"/>
+    /// (the display name shown verbatim — for example <c>"SkyBlue"</c>), and
+    /// <see cref="BlazorFullCalendarColorOption.Value"/> (any CSS color value used for swatches and badges).
+    /// When <c>null</c> or empty, <see cref="BlazorFullCalendarColorOption.Defaults"/> is used.
     /// </summary>
     [Parameter] public IReadOnlyList<BlazorFullCalendarColorOption>? EventColorOptions { get; set; }
 

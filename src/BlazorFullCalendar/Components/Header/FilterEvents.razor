@@ -5,7 +5,7 @@
         <option value="">@Texts.AllColorsOption</option>
         @foreach (var opt in ColorScheme.Options)
         {
-            <option value="@opt.Color">@ColorScheme.GetPrimaryLabel(opt.Color, Texts)</option>
+            <option value="@opt.Id">@opt.Title</option>
         }
     </select>
 
@@ -24,23 +24,15 @@
     [CascadingParameter] public BlazorFullCalendarColorScheme ColorScheme { get; set; } = default!;
 
     private string SelectedColorValue => State.SelectedColors.Count == 1
-        ? State.SelectedColors[0].ToString()
+        ? State.SelectedColors[0]
         : string.Empty;
 
     private void HandleColorChange(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            State.SetColorFilter(null);
-            return;
-        }
-
-        if (Enum.TryParse<BlazorFullCalendarEventColor>(value, out var selected))
-            State.SetColorFilter(selected);
+        State.SetColorFilter(string.IsNullOrWhiteSpace(value) ? null : value);
     }
 
     private void HandleAttendeeChange(ChangeEventArgs e) =>
         State.SetAttendeeFilter(e.Value?.ToString());
 }
-

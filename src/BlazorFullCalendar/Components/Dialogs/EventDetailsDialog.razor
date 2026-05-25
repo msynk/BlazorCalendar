@@ -10,10 +10,10 @@
         </div>
         <div class="bfc-dialog-body">
             <div class="bfc-event-detail-row">
-                <span class="bfc-event-detail-swatch @BlazorFullCalendarHelpers.GetBgColorCss(Event.Color)" aria-hidden="true"></span>
+                <span class="bfc-event-detail-swatch bfc-bg" style="@ColorScheme.GetColorStyle(Event.Color)" aria-hidden="true"></span>
                 <div>
                     <div class="bfc-event-detail-label">@Texts.ColorLabel</div>
-                    <div class="bfc-event-detail-value bfc-event-detail-color @BlazorFullCalendarHelpers.GetColorCss(Event.Color)">@ColorScheme.GetPrimaryLabel(Event.Color, Texts)</div>
+                    <div class="bfc-event-detail-value bfc-event-detail-color bfc-color" style="@ColorScheme.GetColorStyle(Event.Color)">@ColorScheme.GetLabel(Event.Color)</div>
                 </div>
             </div>
             <div class="bfc-event-detail-row">
