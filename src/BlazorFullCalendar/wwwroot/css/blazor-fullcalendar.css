@@ -445,6 +445,20 @@
 }
 .bfc-event-block:hover { filter: brightness(0.95); z-index: 5; box-shadow: var(--bfc-shadow); }
 .bfc-event-block-pass-through { pointer-events: none; }
+
+/* Wrapper around an event block when overlapping events are stacked diagonally.
+   A subtle box-shadow on the right edge separates the cards behind it. The hovered
+   card and its wrapper are lifted so the full content becomes readable. */
+.bfc-event-stack-item:has(.bfc-event-block:hover),
+.bfc-event-stack-item:focus-within {
+    z-index: 20 !important;
+}
+.bfc-event-stack-item .bfc-event-block {
+    box-shadow: -1px 0 0 0 var(--bfc-bg, #fff);
+}
+.bfc-event-stack-item .bfc-event-block:hover {
+    z-index: 21;
+}
 .bfc-event-block-resizing {
     z-index: 12;
     cursor: ns-resize;
@@ -580,6 +594,13 @@
 }
 .bfc-dark .bfc-resize-preview-time {
     color: #e5e7eb;
+}
+
+/* When resizing a timeline event from the start edge, anchor the floating preview to the
+   start side so it stays visible for short events. */
+.bfc-timeline-event-resizing.bfc-resize-dir-start .bfc-resize-preview {
+    left: 6px;
+    right: auto;
 }
 
 /* ===== Timeline (current time indicator) ===== */
@@ -1940,7 +1961,7 @@
     height: 100%;
     box-sizing: border-box;
     padding: 4px 8px;
-    border-radius: var(--bfc-radius-sm);
+    border-radius: 3px;
     border: 1px solid transparent;
     font-size: 12px;
     cursor: grab;
@@ -1961,6 +1982,79 @@
 }
 
 .bfc-timeline-event-pass-through { pointer-events: none; opacity: 0.55; }
+
+/* Horizontal resize handles for timeline event blocks */
+.bfc-resize-handle-h {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: ew-resize;
+    z-index: 3;
+    touch-action: none;
+    border-radius: 3px;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.bfc-resize-handle-h::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 28px;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--bfc-resize-handle-line);
+    opacity: 0;
+    transition: opacity 0.15s ease, height 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.bfc-resize-handle-start { left: -5px; }
+.bfc-resize-handle-start::after { left: 3px; }
+.bfc-resize-handle-end { right: -5px; }
+.bfc-resize-handle-end::after { right: 3px; }
+.bfc-resize-handle-h:hover { background: var(--bfc-resize-glow); }
+.bfc-resize-handle-h:hover::after {
+    opacity: 0.85;
+    height: 36px;
+}
+
+.bfc-timeline-event-resizing {
+    z-index: 12;
+    cursor: ew-resize;
+    filter: brightness(1.02) saturate(1.05);
+    will-change: transform, width;
+    border-color: var(--bfc-resize-ring) !important;
+    box-shadow:
+        0 0 0 2px var(--bfc-resize-ring),
+        0 0 0 5px var(--bfc-resize-glow),
+        0 12px 28px rgba(15, 23, 42, 0.18),
+        var(--bfc-shadow);
+    transition: box-shadow 0.2s ease, filter 0.2s ease, border-color 0.2s ease;
+}
+.bfc-dark .bfc-timeline-event-resizing {
+    box-shadow:
+        0 0 0 2px var(--bfc-resize-ring),
+        0 0 0 5px var(--bfc-resize-glow),
+        0 12px 32px rgba(0, 0, 0, 0.45),
+        var(--bfc-shadow);
+}
+.bfc-timeline-event-resizing .bfc-resize-handle-start {
+    background: linear-gradient(to right, var(--bfc-resize-glow), transparent);
+}
+.bfc-timeline-event-resizing .bfc-resize-handle-end {
+    background: linear-gradient(to left, var(--bfc-resize-glow), transparent);
+}
+.bfc-timeline-event-resizing .bfc-resize-handle-h::after {
+    opacity: 1;
+    height: 40px;
+    box-shadow: 0 0 0 2px var(--bfc-resize-glow), 0 2px 6px rgba(59, 130, 246, 0.35);
+}
+.bfc-timeline-event-resizing.bfc-resize-dir-start .bfc-resize-handle-start::after,
+.bfc-timeline-event-resizing.bfc-resize-dir-end .bfc-resize-handle-end::after {
+    width: 4px;
+    height: 44px;
+    box-shadow: 0 0 0 3px var(--bfc-resize-glow), 0 2px 10px rgba(59, 130, 246, 0.45);
+}
 
 .bfc-timeline-event-row {
     display: flex;

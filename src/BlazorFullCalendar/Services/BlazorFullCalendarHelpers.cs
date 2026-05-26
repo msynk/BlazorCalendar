@@ -217,6 +217,34 @@ public static class BlazorFullCalendarHelpers
             : date.ToString("h:mm tt", CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    /// Builds a human-friendly tooltip string for an event. Includes the title, the time range,
+    /// and (when present and not redundant with the title) the description. Used by event cards
+    /// where layout space may hide most of the visual content.
+    /// </summary>
+    public static string BuildEventTooltip(BlazorFullCalendarEvent ev, bool use24Hour)
+    {
+        if (ev is null)
+            return string.Empty;
+
+        var title = string.IsNullOrWhiteSpace(ev.Title) ? string.Empty : ev.Title.Trim();
+        var time = $"{FormatTime(ev.StartDate, use24Hour)} - {FormatTime(ev.EndDate, use24Hour)}";
+
+        var lines = new List<string>(3);
+        if (!string.IsNullOrEmpty(title))
+            lines.Add(title);
+        lines.Add(time);
+
+        if (!string.IsNullOrWhiteSpace(ev.Description))
+        {
+            var description = ev.Description.Trim();
+            if (!string.Equals(description, title, StringComparison.Ordinal))
+                lines.Add(description);
+        }
+
+        return string.Join('\n', lines);
+    }
+
     public static string FormatHourLabel(int hour, bool use24Hour)
     {
         var dt = DateTime.Today.AddHours(hour);

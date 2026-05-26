@@ -185,6 +185,10 @@
                 builder.AddAttribute(4, "Event", ev);
                 builder.AddAttribute(5, "OnSelected", EventCallback.Factory.Create<BlazorFullCalendarEvent>(this, SelectEvent));
                 builder.AddAttribute(6, "EventTemplate", EventTemplate);
+                builder.AddAttribute(7, "PixelsPerMinute", dayWidth / 1440.0);
+                builder.AddAttribute(8, "SnapMinutes", 1440);
+                builder.AddAttribute(9, "MinDurationMinutes", 1440);
+                builder.AddAttribute(10, "PreviewAsDate", true);
                 builder.CloseComponent();
                 builder.CloseElement();
             }

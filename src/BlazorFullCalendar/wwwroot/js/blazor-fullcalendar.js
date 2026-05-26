@@ -140,6 +140,76 @@ window.BlazorFullCalendar = {
         });
     },
 
+    /**
+     * Pointer resize for timeline event blocks along the horizontal time axis.
+     * Sends raw pixel deltas to .NET; the C# side converts to minute deltas using the active
+     * column's pixels-per-minute so the same handler works for hour-precision (day/week
+     * timelines) and day-precision (month timeline). Events are always placed with absolute
+     * `left:` from the left edge of the row, so a positive clientX delta always means
+     * "later in time" regardless of writing direction.
+     * direction is "start" (left edge of the event) or "end" (right edge of the event).
+     */
+    initResizeHorizontal: function (dotNetRef, elementId, direction) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        el.addEventListener("pointerdown", async (e) => {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const startX = e.clientX;
+            let latestX = startX;
+            let rafId = null;
+            let activePointerId = e.pointerId;
+            let ended = false;
+
+            try { el.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+
+            await dotNetRef.invokeMethodAsync("OnResizeStart", direction);
+
+            const flushMove = () => {
+                rafId = null;
+                const deltaPx = latestX - startX;
+                return dotNetRef.invokeMethodAsync("OnResizeMove", direction, deltaPx);
+            };
+
+            const onPointerMove = (ev) => {
+                latestX = ev.clientX;
+                if (rafId == null) {
+                    rafId = requestAnimationFrame(() => { void flushMove(); });
+                }
+            };
+
+            const endResize = async () => {
+                if (ended) return;
+                ended = true;
+                document.removeEventListener("pointermove", onPointerMove);
+                document.removeEventListener("pointerup", endResize);
+                document.removeEventListener("pointercancel", endResize);
+
+                if (rafId != null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                const deltaPx = latestX - startX;
+                await dotNetRef.invokeMethodAsync("OnResizeMove", direction, deltaPx);
+
+                try {
+                    if (activePointerId != null && typeof el.releasePointerCapture === "function")
+                        el.releasePointerCapture(activePointerId);
+                } catch { }
+
+                activePointerId = null;
+                await dotNetRef.invokeMethodAsync("OnResizeEnd");
+            };
+
+            document.addEventListener("pointermove", onPointerMove);
+            document.addEventListener("pointerup", endResize);
+            document.addEventListener("pointercancel", endResize);
+        });
+    },
+
     isDarkMode: function () {
         return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     },
