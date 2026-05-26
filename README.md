@@ -15,6 +15,8 @@ A feature-rich, interactive calendar component for Blazor applications. Built wi
 - **Culture-Aware Date-Time Picker**: Built-in dropdown date-time picker in add/edit dialogs (no browser-native `datetime-local`) with culture calendar rendering support (including `fa-IR`)
 - **Drag & Drop**: Move events between time slots and dates with native HTML5 drag-and-drop
 - **Resize**: Drag the top or bottom handle of any day/week event block to adjust its start or end time
+- **Smart Overlap Layout**: When events conflict in day/week views their cards stack diagonally (each card offset to the right) instead of being squeezed into thin equal-width columns, so the title and time stay readable. Hovering or focusing a card lifts it above the rest. Non-conflicting events keep the full column width
+- **Event Tooltips**: Every event card exposes a native tooltip with the title, time range, and description so users can distinguish overlapping or clipped cards on hover
 - **Multi-User Support**: Filter events by attendee or color with avatar initials and color badges
 - **Fully customizable colors**: Bring your own palette through `EventColorOptions` — each entry has its own `Id`, `Title` (the full name shown verbatim, like `"SkyBlue"`), and `Value` (any CSS color). The component derives badges, swatches, and bullets from that single value
 - **External Filter UI (`HideFilters`)**: Hide the built-in color and attendee dropdowns and supply your own filter controls with pre-filtered events
@@ -487,8 +489,8 @@ public sealed class BlazorFullCalendarDateChangeEventArgs
 ## Views
 
 - **Month View**: Grid layout with multi-day event support and "+N more" overflow
-- **Week View**: 7-day view with hourly time slots, drag-and-drop, and event resize
-- **Day View**: Single-day detailed view with timeline, sidebar mini-calendar, and "Happening Now" panel
+- **Week View**: 7-day view with hourly time slots, drag-and-drop, and event resize. Overlapping events are laid out as a diagonal stack — each conflicting card is offset to the right and hover/focus brings the obscured card to the front
+- **Day View**: Single-day detailed view with timeline, sidebar mini-calendar, and "Happening Now" panel. Same diagonal-stack layout for overlapping events as Week view
 - **Year View**: 12-month overview with per-day event bullet indicators
 - **Agenda View**: Searchable list grouped by date or user
 - **Timeline mode**: A separate top-level mode shown when `Resources` is supplied. Resources occupy the vertical axis and time the horizontal axis; the day, week, and month sub-views remain available inside Timeline. Day and week sub-views use one-hour columns; the month sub-view uses one-day columns to keep the time axis a sensible length. The resource column stays pinned to the leading edge while the time axis scrolls horizontally. On first paint the grid auto-scrolls to the start-of-day hour, and to today's day column when today falls inside the visible range. Drag events between rows to reassign their `Resource`
