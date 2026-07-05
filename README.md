@@ -1,4 +1,10 @@
-﻿# BlazorFullCalendar
+**Note**: moved to bit BlazorUI (https://blazorui.bitplatform.dev).
+
+Check its source code here: https://github.com/bitfoundation/bitplatform/tree/develop/src/BlazorUI
+
+---
+ 
+ # BlazorFullCalendar
 
 A feature-rich, interactive calendar component for Blazor applications. Built with pure Blazor and .NET — no JavaScript frameworks required.
 
